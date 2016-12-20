@@ -1,6 +1,5 @@
 package com.vizo.empireconquest.ui;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +7,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -18,7 +16,6 @@ import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.GamesStatusCodes;
 import com.google.android.gms.games.multiplayer.Invitation;
 import com.google.android.gms.games.multiplayer.Multiplayer;
-import com.google.android.gms.games.multiplayer.OnInvitationReceivedListener;
 import com.google.android.gms.games.multiplayer.Participant;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceivedListener;
@@ -32,13 +29,11 @@ import com.vizo.empireconquest.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+public class GameActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener, RealTimeMessageReceivedListener,
-        RoomStatusUpdateListener, RoomUpdateListener, OnInvitationReceivedListener {
+        RoomStatusUpdateListener, RoomUpdateListener {
 
     final static String TAG = "Ben Vissotzky";
-
-
 
     // Request codes for the UIs that we show with startActivityForResult:
     final static int RC_SELECT_PLAYERS = 10000;
@@ -85,9 +80,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_game_map);
         switchToScreen(R.id.screen_wait);
-
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -95,51 +89,30 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
                 .build();
 
+        mGoogleApiClient.connect();
 
         for (int id : CLICKABLES) {
             findViewById(id).setOnClickListener(this);
         }
-
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.button_sign_in:
-                Log.d(TAG, "Sign-in button clicked");
-                mSignInClicked = true;
-                mGoogleApiClient.connect();
-                break;
-            case R.id.button_start_game:
-                Intent intent = new Intent(MainActivity.this, GameActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.button_log_out:
-                // user wants to sign out
-                // sign out.
-                Log.d(TAG, "Sign-out button clicked");
-                mSignInClicked = false;
-                Games.signOut(mGoogleApiClient);
-                mGoogleApiClient.disconnect();
-                switchToScreen(R.id.screen_sign_in);
-                break;
-            case R.id.button_test:
-                switchToScreen(R.id.screen_game);
-                break;
             case R.id.button_alaska:
-//                for (Participant p : mParticipants) {
-//                    if (p.getParticipantId().equals(mMyId)) {
-//                        continue;
-//                    }
-//                    if (p.getStatus() != Participant.STATUS_JOINED){
-//                        continue;
-//                    }
-//                    else {
-//                        mMsgBuf[0] = (byte) 0;
-//                        mMsgBuf[1] = (byte) 1;
-//                        Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, mMsgBuf, mRoomId, p.getParticipantId());
-//                    }
-//                }
+                for (Participant p : mParticipants) {
+                    if (p.getParticipantId().equals(mMyId)) {
+                        continue;
+                    }
+                    if (p.getStatus() != Participant.STATUS_JOINED){
+                        continue;
+                    }
+                    else {
+                        mMsgBuf[0] = (byte) 0;
+                        mMsgBuf[1] = (byte) 1;
+                        Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, mMsgBuf, mRoomId, p.getParticipantId());
+                    }
+                }
                 break;
         }
     }
@@ -152,7 +125,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         rtmConfigBuilder.setMessageReceivedListener(this);
         rtmConfigBuilder.setRoomStatusUpdateListener(this);
         rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
-        switchToScreen(R.id.screen_wait);
         keepScreenOn();
         resetGameVars();
         Games.RealTimeMultiplayer.create(mGoogleApiClient, rtmConfigBuilder.build());
@@ -164,15 +136,15 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         super.onActivityResult(requestCode, responseCode, intent);
 
         switch (requestCode) {
-            case RC_SELECT_PLAYERS:
-                // we got the result from the "select players" UI -- ready to create the room
-                handleSelectPlayersResult(responseCode, intent);
-                break;
-            case RC_INVITATION_INBOX:
-                // we got the result from the "select invitation" UI (invitation inbox).g We're
-                // ready to accept the selected invitation:
-                handleInvitationInboxResult(responseCode, intent);
-                break;
+//            case RC_SELECT_PLAYERS:
+//                // we got the result from the "select players" UI -- ready to create the room
+//                handleSelectPlayersResult(responseCode, intent);
+//                break;
+//            case RC_INVITATION_INBOX:
+//                // we got the result from the "select invitation" UI (invitation inbox).g We're
+//                // ready to accept the selected invitation:
+//                handleInvitationInboxResult(responseCode, intent);
+//                break;
             case RC_WAITING_ROOM:
                 // we got the result from the "waiting room" UI.
                 if (responseCode == Activity.RESULT_OK) {
@@ -189,91 +161,91 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     leaveRoom();
                 }
                 break;
-            case RC_SIGN_IN:
-                Log.d(TAG, "onActivityResult with requestCode == RC_SIGN_IN, responseCode="
-                        + responseCode + ", intent=" + intent);
-                mSignInClicked = false;
-                mResolvingConnectionFailure = false;
-                if (responseCode == RESULT_OK) {
-                    mGoogleApiClient.connect();
-                } else {
-                    BaseGameUtils.showActivityResultError(this,requestCode,responseCode, 4);
-                }
-                break;
+//            case RC_SIGN_IN:
+//                Log.d(TAG, "onActivityResult with requestCode == RC_SIGN_IN, responseCode="
+//                        + responseCode + ", intent=" + intent);
+//                mSignInClicked = false;
+//                mResolvingConnectionFailure = false;
+//                if (responseCode == RESULT_OK) {
+//                    mGoogleApiClient.connect();
+//                } else {
+//                    BaseGameUtils.showActivityResultError(this,requestCode,responseCode, 4);
+//                }
+//                break;
         }
         super.onActivityResult(requestCode, responseCode, intent);
     }
 
     // Handle the result of the "Select players UI" we launched when the user clicked the
     // "Invite friends" button. We react by creating a room with those players.
-    private void handleSelectPlayersResult(int response, Intent data) {
-        if (response != Activity.RESULT_OK) {
-            Log.w(TAG, "*** select players UI cancelled, " + response);
-            switchToMainScreen();
-            return;
-        }
-
-        Log.d(TAG, "Select players UI succeeded.");
-
-        // get the invitee list
-        final ArrayList<String> invitees = data.getStringArrayListExtra(Games.EXTRA_PLAYER_IDS);
-        Log.d(TAG, "Invitee count: " + invitees.size());
-
-        // get the automatch criteria
-        Bundle autoMatchCriteria = null;
-        int minAutoMatchPlayers = data.getIntExtra(Multiplayer.EXTRA_MIN_AUTOMATCH_PLAYERS, 0);
-        int maxAutoMatchPlayers = data.getIntExtra(Multiplayer.EXTRA_MAX_AUTOMATCH_PLAYERS, 0);
-        if (minAutoMatchPlayers > 0 || maxAutoMatchPlayers > 0) {
-            autoMatchCriteria = RoomConfig.createAutoMatchCriteria(
-                    minAutoMatchPlayers, maxAutoMatchPlayers, 0);
-            Log.d(TAG, "Automatch criteria: " + autoMatchCriteria);
-        }
-
-        // create the room
-        Log.d(TAG, "Creating room...");
-        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(this);
-        rtmConfigBuilder.addPlayersToInvite(invitees);
-        rtmConfigBuilder.setMessageReceivedListener(this);
-        rtmConfigBuilder.setRoomStatusUpdateListener(this);
-        if (autoMatchCriteria != null) {
-            rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
-        }
-        switchToScreen(R.id.screen_wait);
-        keepScreenOn();
-        resetGameVars();
-        Games.RealTimeMultiplayer.create(mGoogleApiClient, rtmConfigBuilder.build());
-        Log.d(TAG, "Room created, waiting for it to be ready...");
-    }
+//    private void handleSelectPlayersResult(int response, Intent data) {
+//        if (response != Activity.RESULT_OK) {
+//            Log.w(TAG, "*** select players UI cancelled, " + response);
+//            switchToMainScreen();
+//            return;
+//        }
+//
+//        Log.d(TAG, "Select players UI succeeded.");
+//
+//        // get the invitee list
+//        final ArrayList<String> invitees = data.getStringArrayListExtra(Games.EXTRA_PLAYER_IDS);
+//        Log.d(TAG, "Invitee count: " + invitees.size());
+//
+//        // get the automatch criteria
+//        Bundle autoMatchCriteria = null;
+//        int minAutoMatchPlayers = data.getIntExtra(Multiplayer.EXTRA_MIN_AUTOMATCH_PLAYERS, 0);
+//        int maxAutoMatchPlayers = data.getIntExtra(Multiplayer.EXTRA_MAX_AUTOMATCH_PLAYERS, 0);
+//        if (minAutoMatchPlayers > 0 || maxAutoMatchPlayers > 0) {
+//            autoMatchCriteria = RoomConfig.createAutoMatchCriteria(
+//                    minAutoMatchPlayers, maxAutoMatchPlayers, 0);
+//            Log.d(TAG, "Automatch criteria: " + autoMatchCriteria);
+//        }
+//
+//        // create the room
+//        Log.d(TAG, "Creating room...");
+//        RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(this);
+//        rtmConfigBuilder.addPlayersToInvite(invitees);
+//        rtmConfigBuilder.setMessageReceivedListener(this);
+//        rtmConfigBuilder.setRoomStatusUpdateListener(this);
+//        if (autoMatchCriteria != null) {
+//            rtmConfigBuilder.setAutoMatchCriteria(autoMatchCriteria);
+//        }
+//        switchToScreen(R.id.screen_wait);
+//        keepScreenOn();
+//        resetGameVars();
+//        Games.RealTimeMultiplayer.create(mGoogleApiClient, rtmConfigBuilder.build());
+//        Log.d(TAG, "Room created, waiting for it to be ready...");
+//    }
 
     // Handle the result of the invitation inbox UI, where the player can pick an invitation
     // to accept. We react by accepting the selected invitation, if any.
-    private void handleInvitationInboxResult(int response, Intent data) {
-        if (response != Activity.RESULT_OK) {
-            Log.w(TAG, "*** invitation inbox UI cancelled, " + response);
-            switchToMainScreen();
-            return;
-        }
-
-        Log.d(TAG, "Invitation inbox UI succeeded.");
-        Invitation inv = data.getExtras().getParcelable(Multiplayer.EXTRA_INVITATION);
-
-        // accept invitation
-        acceptInviteToRoom(inv.getInvitationId());
-    }
+//    private void handleInvitationInboxResult(int response, Intent data) {
+//        if (response != Activity.RESULT_OK) {
+//            Log.w(TAG, "*** invitation inbox UI cancelled, " + response);
+//            switchToMainScreen();
+//            return;
+//        }
+//
+//        Log.d(TAG, "Invitation inbox UI succeeded.");
+//        Invitation inv = data.getExtras().getParcelable(Multiplayer.EXTRA_INVITATION);
+//
+//        // accept invitation
+//        acceptInviteToRoom(inv.getInvitationId());
+//    }
 
     // Accept the given invitation.
-    void acceptInviteToRoom(String invId) {
-        // accept the invitation
-        Log.d(TAG, "Accepting invitation: " + invId);
-        RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(this);
-        roomConfigBuilder.setInvitationIdToAccept(invId)
-                .setMessageReceivedListener(this)
-                .setRoomStatusUpdateListener(this);
-        switchToScreen(R.id.screen_wait);
-        keepScreenOn();
-        resetGameVars();
-        Games.RealTimeMultiplayer.join(mGoogleApiClient, roomConfigBuilder.build());
-    }
+//    void acceptInviteToRoom(String invId) {
+//        // accept the invitation
+//        Log.d(TAG, "Accepting invitation: " + invId);
+//        RoomConfig.Builder roomConfigBuilder = RoomConfig.builder(this);
+//        roomConfigBuilder.setInvitationIdToAccept(invId)
+//                .setMessageReceivedListener(this)
+//                .setRoomStatusUpdateListener(this);
+//        switchToScreen(R.id.screen_wait);
+//        keepScreenOn();
+//        resetGameVars();
+//        Games.RealTimeMultiplayer.join(mGoogleApiClient, roomConfigBuilder.build());
+//    }
 
     // Activity just got to the foreground. We switch to the wait screen because we will now
     // go through the sign-in flow (remember that, yes, every time the Activity comes back to the
@@ -281,7 +253,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     // this flow simply succeeds and is imperceptible).
     @Override
     public void onStart() {
-        switchToScreen(R.id.screen_wait);
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             Log.w(TAG,
                     "GameHelper: client was already connected on onStart()");
@@ -297,8 +268,14 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     public void onStop() {
         Log.d(TAG, "**** got onStop");
 
+        // if we're in a room, leave it.
+        leaveRoom();
+
+        // stop trying to keep the screen on
+        stopKeepingScreenOn();
+
         if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()){
-            switchToScreen(R.id.screen_sign_in);
+//            switchToScreen(R.id.screen_sign_in);
         }
         else {
             switchToScreen(R.id.screen_wait);
@@ -325,33 +302,33 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             mRoomId = null;
             switchToScreen(R.id.screen_wait);
         } else {
-            switchToMainScreen();
+//            switchToMainScreen();
         }
     }
 
 
     // Called when we get an invitation to play a game. We react by showing that to the user.
-    @Override
-    public void onInvitationReceived(Invitation invitation) {
-        // We got an invitation to play a game! So, store it in
-        // mIncomingInvitationId
-        // and show the popup on the screen.
-        mIncomingInvitationId = invitation.getInvitationId();
-        ((TextView) findViewById(R.id.incoming_invitation_text)).setText(
-                invitation.getInviter().getDisplayName() + " " +
-                        "Invitation?");
-        switchToScreen(mCurScreen); // This will show the invitation popup
-    }
+//    @Override
+//    public void onInvitationReceived(Invitation invitation) {
+//        // We got an invitation to play a game! So, store it in
+//        // mIncomingInvitationId
+//        // and show the popup on the screen.
+//        mIncomingInvitationId = invitation.getInvitationId();
+//        ((TextView) findViewById(R.id.incoming_invitation_text)).setText(
+//                invitation.getInviter().getDisplayName() + " " +
+//                        "Invitation?");
+//        switchToScreen(mCurScreen); // This will show the invitation popup
+//    }
 
-    @Override
-    public void onInvitationRemoved(String invitationId) {
-
-        if (mIncomingInvitationId.equals(invitationId)&&mIncomingInvitationId!=null) {
-            mIncomingInvitationId = null;
-            switchToScreen(mCurScreen); // This will hide the invitation popup
-        }
-
-    }
+//    @Override
+//    public void onInvitationRemoved(String invitationId) {
+//
+//        if (mIncomingInvitationId.equals(invitationId)&&mIncomingInvitationId!=null) {
+//            mIncomingInvitationId = null;
+//            switchToScreen(mCurScreen); // This will hide the invitation popup
+//        }
+//
+//    }
 
 
     /*
@@ -367,7 +344,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
         // register listener so we are notified if we receive an invitation to play
         // while we are in the game
-        Games.Invitations.registerInvitationListener(mGoogleApiClient, this);
+//        Games.Invitations.registerInvitationListener(mGoogleApiClient, this);
 
         if (connectionHint != null) {
             Log.d(TAG, "onConnected: connection hint provided. Checking for invite.");
@@ -376,12 +353,11 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             if (inv != null && inv.getInvitationId() != null) {
                 // retrieve and cache the invitation ID
                 Log.d(TAG,"onConnected: connection hint has a room invite!");
-                acceptInviteToRoom(inv.getInvitationId());
+//                acceptInviteToRoom(inv.getInvitationId());
                 return;
             }
         }
-        switchToMainScreen();
-
+        startQuickGame();
     }
 
     @Override
@@ -406,7 +382,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     connectionResult, RC_SIGN_IN, "Ruh Roh");
         }
 
-        switchToScreen(R.id.screen_sign_in);
+//        switchToScreen(R.id.screen_sign_in);
     }
 
     // Called when we are connected to the room. We're not ready to play yet! (maybe not everybody
@@ -583,24 +559,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     //receive on click of territory
     public void onTerritorySelected(View v) {
-        Log.d(TAG, "hmmmmm");
-        switch (v.getId()) {
-            case R.id.button_alaska:
-                for (Participant p : mParticipants) {
-                    if (p.getParticipantId().equals(mMyId)) {
-                        continue;
-                    }
-                    if (p.getStatus() != Participant.STATUS_JOINED){
-                        continue;
-                    }
-                    else {
-                        mMsgBuf[0] = (byte) 0;
-                        mMsgBuf[1] = (byte) 1;
-                        Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, mMsgBuf, mRoomId, p.getParticipantId());
-                    }
-                }
-            break;
-        }
+
     }
 
     /*
@@ -619,7 +578,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         byte[] buf = rtm.getMessageData();
         String sender = rtm.getSenderParticipantId();
         Log.d(TAG, "Message received: " + (int) buf[0] + "/" + (int) buf[1]);
-        Toast.makeText(MainActivity.this, "Message received: " + (int) buf[0] + "/" + (int) buf[1], Toast.LENGTH_SHORT).show();
+        Toast.makeText(GameActivity.this, "Message received: " + (int) buf[0] + "/" + (int) buf[1], Toast.LENGTH_SHORT).show();
     }
 
     /*
@@ -627,12 +586,12 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
      */
 
     final static int[] CLICKABLES = {
-            R.id.button_start_game, R.id.button_sign_in, R.id.button_log_out, R.id.button_test, R.id.button_alaska, R.id.button_nwTerritory, R.id.button_greenland, R.id.button_alberta, R.id.button_ontario, R.id.button_quebec, R.id.button_westernUs, R.id.button_easternUs, R.id.button_centralAmerica
+            R.id.button_alaska, R.id.button_nwTerritory, R.id.button_greenland, R.id.button_alberta, R.id.button_ontario, R.id.button_quebec, R.id.button_westernUs, R.id.button_easternUs, R.id.button_centralAmerica
     };
 
     // This array lists all the individual screens our game has.
     final static int[] SCREENS = {
-            R.id.screen_game, R.id.screen_main, R.id.screen_sign_in,
+            R.id.screen_game,
             R.id.screen_wait
     };
     int mCurScreen = -1;
@@ -643,20 +602,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             findViewById(id).setVisibility(screenId == id ? View.VISIBLE : View.GONE);
         }
         mCurScreen = screenId;
-
-        //should we show invitation popup
-        boolean showInvPopup;
-        if (mIncomingInvitationId == null) {
-            //no invitation, so no popup
-            showInvPopup = false;
-        } else if (mMultiplayer) {
-            //if in multiplayer, only show invitation on main screen
-            showInvPopup = (mCurScreen == R.id.screen_main);
-        } else {
-            //single player: show on main screen and gameplay screen
-            showInvPopup = (mCurScreen == R.id.screen_main || mCurScreen == R.id.screen_main);
-        }
-        findViewById(R.id.invitation_popup).setVisibility(showInvPopup ? View.VISIBLE : View.GONE);
     }
 
     // Sets the flag to keep this screen on. It's recommended to do that during
@@ -675,19 +620,16 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     void switchToMainScreen() {
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-            switchToScreen(R.id.screen_main);
+//            switchToScreen(R.id.screen_main);
+            Log.d(TAG, "switchToMainScreen if");
+            Intent intent = new Intent(GameActivity.this, MainActivity.class);
+            startActivity(intent);
         }
         else {
-            switchToScreen(R.id.screen_sign_in);
+            Log.d(TAG, "switchToMainScreen else");
+            Intent intent = new Intent(GameActivity.this, MainActivity.class);
+            startActivity(intent);
+//            switchToScreen(R.id.screen_sign_in);
         }
     }
-
-
-
-
-
-
-
-
-
 }

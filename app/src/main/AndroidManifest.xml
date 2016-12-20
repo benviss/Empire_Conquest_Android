@@ -36,7 +36,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.GameMapActivity"
+            android:name=".ui.GameActivity"
             android:screenOrientation="landscape"></activity>
     </application>
 </manifest>
