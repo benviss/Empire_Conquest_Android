@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -25,13 +24,19 @@ import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListene
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.example.games.basegameutils.BaseGameUtils;
 import com.vizo.empireconquest.R;
+import com.vizo.empireconquest.models.Board;
+import com.vizo.empireconquest.models.Player;
+import com.vizo.empireconquest.models.Territory;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class GameActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener, RealTimeMessageReceivedListener,
-        RoomStatusUpdateListener, RoomUpdateListener {
+        RoomStatusUpdateListener, RoomUpdateListener, Serializable{
 
     final static String TAG = "Ben Vissotzky";
 
@@ -58,9 +63,6 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     // not playing.
     String mRoomId = null;
 
-    // Are we playing in multiplayer mode?
-    boolean mMultiplayer = false;
-
     // The participants in the currently active game
     ArrayList<Participant> mParticipants = null;
 
@@ -69,6 +71,21 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
     // Message buffer for sending messages
     byte[] mMsgBuf = new byte[2];
+
+    // Board object
+    Board board;
+
+    // Player Array
+    ArrayList<Player> players = new ArrayList<>();
+
+    //Keeping track of player inputs, determining next round or not
+
+
+    //Territory Array
+    ArrayList<Territory> territories = new ArrayList<>();
+
+    //Game State
+    boolean gameOn = false;
 
 
     @Override
@@ -94,18 +111,8 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_alaska:
-                for (Participant p : mParticipants) {
-                    if (p.getParticipantId().equals(mMyId)) {
-                        continue;
-                    }
-                    if (p.getStatus() != Participant.STATUS_JOINED){
-                        continue;
-                    }
-                    else {
-                        mMsgBuf[0] = (byte) 0;
-                        mMsgBuf[1] = (byte) 1;
-                        Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, mMsgBuf, mRoomId, p.getParticipantId());
-                    }
+                for (Territory t : territories) {
+                    Log.d(TAG, t.getName() + "||" + t.getPlayerOwned().getName());
                 }
                 break;
         }
@@ -135,7 +142,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
                 if (responseCode == Activity.RESULT_OK) {
                     // ready to start playing
                     Log.d(TAG, "Starting game (waiting room returned OK).");
-                    startGame(true);
+                    startGame();
                 } else if (responseCode == GamesActivityResultCodes.RESULT_LEFT_ROOM) {
                     // player indicated that they want to leave the room
                     leaveRoom();
@@ -161,7 +168,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             Log.w(TAG,
                     "GameHelper: client was already connected on onStart()");
         } else {
-            Log.d(TAG,"Connecting client.");
+            Log.d(TAG, "Connecting client.");
             mGoogleApiClient.connect();
         }
         super.onStart();
@@ -178,10 +185,9 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         // stop trying to keep the screen on
         stopKeepingScreenOn();
 
-        if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()){
+        if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()) {
 //            switchToScreen(R.id.screen_sign_in);
-        }
-        else {
+        } else {
             switchToScreen(R.id.screen_wait);
         }
         super.onStop();
@@ -231,7 +237,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
                     .getParcelable(Multiplayer.EXTRA_INVITATION);
             if (inv != null && inv.getInvitationId() != null) {
                 // retrieve and cache the invitation ID
-                Log.d(TAG,"onConnected: connection hint has a room invite!");
+                Log.d(TAG, "onConnected: connection hint has a room invite!");
 //                acceptInviteToRoom(inv.getInvitationId());
                 return;
             }
@@ -272,10 +278,14 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
         //get participants and my ID:
         mParticipants = room.getParticipants();
+        for (Participant p : mParticipants) {
+            Player newPlayer = new Player(p.getDisplayName(), p.getParticipantId());
+            players.add(newPlayer);
+        }
         mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(mGoogleApiClient));
 
         // save room ID if its not initialized in onRoomCreated() so we can leave cleanly before the game starts.
-        if(mRoomId==null)
+        if (mRoomId == null)
             mRoomId = room.getRoomId();
 
         // print out the list of participants (for debug purposes)
@@ -358,6 +368,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         BaseGameUtils.makeSimpleDialog(this, "Game problem?");
         switchToMainScreen();
     }
+
     // We treat most of the room update callbacks in the same way: we update our list of
     // participants and update the display. In a real game we would also have to check if that
     // change requires some action like removing the corresponding player avatar from the screen,
@@ -423,21 +434,54 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     /*
      * GAME LOGIC SECTION. Methods that implement the game's rules.
      */
+    public void run()
+    {
+        //Looping until the boolean is false
+//        while (gameOn)
+//        {
+////            processInput();
+//            update();
+//            try {Thread.sleep(1000);}
+//            catch (InterruptedException ex) {}
+//        }
+    }
 
     // Reset game variables in preparation for a new game.
     void resetGameVars() {
         // Deletes room and stuff
     }
 
-    void startGame(boolean multiplayer) {
-        mMultiplayer = multiplayer;
+    // determines creator of board, initializes board sync and starts main game loop
+    void startGame() {
         switchToScreen(R.id.screen_game);
-        // run the gameTick() method every second to update the game.
+        board = new Board();
 
+        players = sortPlayers(players);
+        if (players.get(0).getPlayerId() == mMyId) {
+            createBoard(players);
+            syncTerritories(board.getTerritories(), players);
+        }
+        gameOn = true;
+        run();
     }
 
-    //receive on click of territory
-    public void onTerritorySelected(View v) {
+    //Sorts Players by id and determines creator of board
+    public ArrayList<Player> sortPlayers(ArrayList<Player> players) {
+        Collections.sort(players, new Comparator<Player>() {
+            public int compare(Player p1, Player p2) {
+                return p1.getName().compareTo(p2.getName());
+            }
+        });
+        return players;
+    }
+
+    //Only called by creator of board. Determines random owners of territories
+    public void createBoard(ArrayList<Player> players) {
+        board.assignTerritories(players);
+        territories = board.getTerritories();
+    }
+
+    public void update() {
 
     }
 
@@ -447,17 +491,58 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
      */
 
     // Called when we receive a real-time message from the network.
-    // Messages in our game are made up of 2 bytes: the first one is 'F' or 'U'
-    // indicating
-    // whether it's a final or interim score. The second byte is the score.
-    // There is also the
-    // 'S' message, which indicates that the game should start.
+    // Message of 0 means board generation command received
     @Override
     public void onRealTimeMessageReceived(RealTimeMessage rtm) {
         byte[] buf = rtm.getMessageData();
         String sender = rtm.getSenderParticipantId();
-        Log.d(TAG, "Message received: " + (int) buf[0] + "/" + (int) buf[1]);
-        Toast.makeText(GameActivity.this, "Message received: " + (int) buf[0] + "/" + (int) buf[1], Toast.LENGTH_SHORT).show();
+        switch (buf[0]) {
+            case 0:
+                syncGameData(buf, players);
+                break;
+        }
+//        Toast.makeText(GameActivity.this, "Message received: " + (int) buf[0] + "/" + (int) buf[1], Toast.LENGTH_SHORT).show();
+    }
+
+    public void syncGameData(byte[] buf, ArrayList<Player> players) {
+        ArrayList<String> indexedTerritories = board.getIndexedTerritories();
+        int t = 1;
+        int p = 2;
+        //TODO dont hardcode you noob
+        for (int i = 1; i < 40; i++) {
+            Territory newTerritory = new Territory(indexedTerritories.get(buf[t]), players.get(buf[p]));
+            territories.add(newTerritory);
+            t += 2;
+            p += 2;
+        }
+    }
+
+    //converts territory array into byte array to transmit over GPS API
+    public void syncTerritories(ArrayList<Territory> territories, ArrayList<Player> players) {
+        byte[] array = new byte[territories.size() * 2 + 1];
+        //sets command of byte array to instruct message receiver
+        array[0] = (byte) 0;
+        ArrayList<String> indexedTerritories = board.getIndexedTerritories();
+        //sets index to assign territory and player
+        int tI = 1;
+        int pI = 2;
+        for (int i = 0; i < territories.size(); i++) {
+            //associates territory object with its territory name in indexedTerritories
+            int territory = indexedTerritories.indexOf(territories.get(i).getName());
+
+            //associates player with index of player in shared players array
+            int player = players.indexOf(territories.get(i).getPlayerOwned());
+
+            //saves territory index and player index to byte[]
+            array[tI] = (byte) territory;
+            array[pI] = (byte) player;
+
+            tI += 2;
+            pI += 2;
+        }
+        for (Participant p : mParticipants) {
+            Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, array, mRoomId, p.getParticipantId());
+        }
     }
 
     /*
@@ -503,8 +588,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             Log.d(TAG, "switchToMainScreen if");
             Intent intent = new Intent(GameActivity.this, MainActivity.class);
             startActivity(intent);
-        }
-        else {
+        } else {
             Log.d(TAG, "switchToMainScreen else");
             Intent intent = new Intent(GameActivity.this, MainActivity.class);
             startActivity(intent);
