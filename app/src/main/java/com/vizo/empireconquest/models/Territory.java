@@ -46,4 +46,8 @@ public class Territory {
     public int getIndex() {
         return index;
     }
+
+    public void addReinforcements() {
+        troops += playerOwned.getReinforcements();
+    }
 }

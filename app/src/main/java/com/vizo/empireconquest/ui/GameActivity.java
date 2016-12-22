@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -92,6 +92,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     boolean gameOn = false;
     boolean attack = false;
     boolean reinforce = false;
+    boolean unSynced = false;
 
 
     @Override
@@ -111,22 +112,25 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         for (int id : CLICKABLES) {
             findViewById(id).setOnClickListener(this);
         }
+        for (int id : TROOPS) {
+            findViewById(id).setOnClickListener(this);
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_alaska:
-                for (Territory t : territories) {
-                    Log.d(TAG, t.getName() + "||" + t.getPlayerOwned().getName());
+                for (Territory t : players.get(0).getTerritories()) {
+                    Log.d(TAG, t.getName() + t.getPlayerOwned());
                 }
-                break;
+            break;
         }
     }
 
     void startQuickGame() {
         //quick game with 1 random opponent
-        final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 1;
+        final int MIN_OPPONENTS = 2, MAX_OPPONENTS = 2;
         Bundle autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS, MAX_OPPONENTS, 0);
         RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(this);
         rtmConfigBuilder.setMessageReceivedListener(this);
@@ -445,7 +449,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     public void run()
     {
         //runs once at beginning of game until territories are synced
-        colorTerritories();
+        updateTerritoryUi();
 //        Looping until the boolean is false
         while (gameOn)
         {
@@ -491,7 +495,9 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     }
 
     public void update() {
-
+        if (reinforce) {
+            reinforceAll();
+        }
     }
 
     /*
@@ -521,6 +527,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         for (int i = 0; i < 42; i++) {
             Territory newTerritory = new Territory(indexedTerritories.get(buf[t]), players.get(buf[p]), buf[t]);
             territories.add(newTerritory);
+            players.get(buf[p]).newTerritory(newTerritory);
             t += 2;
             p += 2;
         }
@@ -558,33 +565,61 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
      * UI SECTION. Methods that implement the game's UI.
      */
 
-    public void colorTerritories() {
-        if (territories.size() > 10) {
-            final int[] TestCLICKABLES = CLICKABLES;
-            new Thread() {
+    // update Territory troops
+    public void reinforceAll() {
+        reinforce = false;
+        try {
+            runOnUiThread(new Runnable() {
+                @Override
                 public void run() {
+                    for (Player p : players) {
+                        for (Territory t: p.getTerritories()) {
+                            TextView textView = (TextView) findViewById(TROOPS[t.getIndex()]);
+                            textView.setText(null);
+                            textView.append(Integer.toString(t.getTroops()));
+                            if (t.getPlayerOwned().getPlayerNumber().equals("player1")) {
+                                textView.setTextColor(Color.RED);
+                            }
+
+                            if (t.getPlayerOwned().getPlayerNumber().equals("player2")) {
+                                textView.setTextColor(Color.BLUE);
+                            }if (t.getPlayerOwned().getPlayerNumber().equals("player3")) {
+                                textView.setTextColor(Color.GREEN);
+                            }
+                        }
+                    }
+                }
+            });
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //Will color buttons and update text of all territories
+    public void updateTerritoryUi() {
+        if (territories.size() > 10) {
+            final int[] TestTROOPS = TROOPS;
+//            new Thread() {
+//                public void run() {
                     try {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            for (int i = 0; i < territories.size(); i++) {
-                                Button button = (Button) findViewById(TestCLICKABLES[territories.get(i).getIndex()]);
-                                switch (territories.get(i).getPlayerOwned().getPlayerNumber()) {
-                                    case "player1":
-                                        button.setBackgroundColor(Color.RED);
-                                        break;
-                                    case "player2":
-                                        button.setBackgroundColor(Color.BLUE);
-                                        break;
-                                    case "player3":
-                                        button.setBackgroundColor(Color.GREEN);
-                                        break;
-                                    case "player4":
-                                        button.setBackgroundColor(Color.CYAN);
-                                        break;
-                                    case "player5":
-                                        button.setBackgroundColor(Color.MAGENTA);
-                                        break;
+                            for (Player p : players) {
+                                for (Territory t: p.getTerritories()) {
+                                    TextView textView = (TextView) findViewById(TestTROOPS[t.getIndex()]);
+                                    textView.setText(null);
+                                    textView.append(Integer.toString(t.getTroops()));
+                                    if (t.getPlayerOwned().getPlayerNumber().equals("player1")) {
+                                        textView.setTextColor(Color.RED);
+                                    }
+
+                                    if (t.getPlayerOwned().getPlayerNumber().equals("player2")) {
+                                        textView.setTextColor(Color.BLUE);
+                                    }if (t.getPlayerOwned().getPlayerNumber().equals("player3")) {
+                                        textView.setTextColor(Color.GREEN);
+                                    }
                                 }
                             }
                         }
@@ -593,14 +628,14 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                }
-            }.start();
-
+//                }
+//            }.start();
+//
         } else {
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    colorTerritories();
+                    updateTerritoryUi();
                 }
             }, 2000);
         }
@@ -608,7 +643,10 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
 
     final static int[] CLICKABLES = {
-            R.id.button_alaska, R.id.button_nwTerritory, R.id.button_greenland, R.id.button_alberta, R.id.button_ontario, R.id.button_quebec, R.id.button_westernUs, R.id.button_easternAustralia, R.id.button_centralAmerica, R.id.button_venezuela, R.id.button_brazil, R.id.button_peru, R.id.button_argentina, R.id.button_southAfrica, R.id.button_madagascar, R.id.button_congo, R.id.button_eastAfrica, R.id.button_egypt, R.id.button_northAfrica, R.id.button_westernEurope,R.id.button_southernEurope, R.id.button_northernEurope, R.id.button_greatBritain, R.id.button_ukraine, R.id.button_scandinavia, R.id.button_iceland, R.id.button_middleEast, R.id.button_afghanistan, R.id.button_ural,R.id.button_siberia, R.id.button_india, R.id.button_china, R.id.button_mongolia, R.id.button_irkutsk, R.id.button_yakutsk, R.id.button_kamchatka, R.id.button_japan, R.id.button_siam, R.id.button_indonesia,R.id.button_newGuinea, R.id.button_westernAustralia, R.id.button_easternAustralia
+            R.id.button_alaska, R.id.button_nwTerritory, R.id.button_greenland, R.id.button_alberta, R.id.button_ontario, R.id.button_quebec, R.id.button_westernUs, R.id.button_easternUs, R.id.button_centralAmerica, R.id.button_venezuela, R.id.button_brazil, R.id.button_peru, R.id.button_argentina, R.id.button_southAfrica, R.id.button_madagascar, R.id.button_congo, R.id.button_eastAfrica, R.id.button_egypt, R.id.button_northAfrica, R.id.button_westernEurope,R.id.button_southernEurope, R.id.button_northernEurope, R.id.button_greatBritain, R.id.button_ukraine, R.id.button_scandinavia, R.id.button_iceland, R.id.button_middleEast, R.id.button_afghanistan, R.id.button_ural,R.id.button_siberia, R.id.button_india, R.id.button_china, R.id.button_mongolia, R.id.button_irkutsk, R.id.button_yakutsk, R.id.button_kamchatka, R.id.button_japan, R.id.button_siam, R.id.button_indonesia,R.id.button_newGuinea, R.id.button_westernAustralia, R.id.button_easternAustralia
+    };
+    final static int[] TROOPS = {
+            R.id.troops_alaska, R.id.troops_nwTerritory, R.id.troops_greenland, R.id.troops_alberta, R.id.troops_ontario, R.id.troops_quebec, R.id.troops_westernUs, R.id.troops_easternUs, R.id.troops_centralAmerica, R.id.troops_venezuela, R.id.troops_brazil, R.id.troops_peru, R.id.troops_argentina, R.id.troops_southAfrica, R.id.troops_madagascar, R.id.troops_congo, R.id.troops_eastAfrica, R.id.troops_egypt, R.id.troops_northAfrica, R.id.troops_westernEurope,R.id.troops_southernEurope, R.id.troops_northernEurope, R.id.troops_greatBritain, R.id.troops_ukraine, R.id.troops_scandinavia, R.id.troops_iceland, R.id.troops_middleEast, R.id.troops_afghanistan, R.id.troops_ural,R.id.troops_siberia, R.id.troops_india, R.id.troops_china, R.id.troops_mongolia, R.id.troops_irkutsk, R.id.troops_yakutsk, R.id.troops_kamchatka, R.id.troops_japan, R.id.troops_siam, R.id.troops_indonesia,R.id.troops_newGuinea, R.id.troops_westernAustralia, R.id.troops_easternAustralia
     };
 
     // This array lists all the individual screens our game has.

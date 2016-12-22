@@ -26,14 +26,14 @@ public class Board {
             int randomInt = randomGenerator.nextInt(unmappedTerritories.size());
 
             //assign player and increment playerIndex to complete player assignment randomization
-            Territory newTerritory = new Territory(unmappedTerritories.get(randomInt), players.get(playerIndex), randomInt);
+            int territoryIndex = territoriesIndexed.indexOf(unmappedTerritories.get(randomInt));
+            Territory newTerritory = new Territory(unmappedTerritories.get(randomInt), players.get(playerIndex), territoryIndex);
             players.get(playerIndex).newTerritory(newTerritory);
             playerIndex++;
 
             territories.add(newTerritory);
             unmappedTerritories.remove(randomInt);
         }
-
     }
 
     public ArrayList<Territory> getTerritories() {

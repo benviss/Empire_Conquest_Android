@@ -9,184 +9,118 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/screen_game">
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="fitXY"
-                    android:adjustViewBounds="true"
-                    android:src="@drawable/risk_map"
-                    android:layout_alignParentTop="true" />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:src="@drawable/risk_map"
+                android:layout_alignParentTop="true" />
 
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:id="@+id/button_alaska"
-                    android:onClick="onTerritorySelected"
-                    android:layout_gravity="left|top"
-                    android:layout_marginTop="65dp"
-                    android:layout_marginLeft="25dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/button_alaska"
+                android:layout_gravity="left|top"
+                android:layout_marginTop="65dp"
+                android:layout_marginLeft="25dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/troops_alaska"
-                    android:layout_gravity="left|top"
-                    android:layout_marginLeft="40dp"
-                    android:layout_marginTop="65dp" />
 
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:id="@+id/button_nwTerritory"
-                    android:onClick="onTerritorySelected"
-                    android:layout_gravity="left|top"
-                    android:layout_marginLeft="75dp"
-                    android:layout_marginTop="65dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/troops_nwterritory"
-                    android:layout_gravity="left|top"
-                    android:layout_marginLeft="90dp"
-                    android:layout_marginTop="75dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/button_nwTerritory"
+                android:layout_gravity="left|top"
+                android:layout_marginLeft="75dp"
+                android:layout_marginTop="65dp" />
 
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:onClick="onTerritorySelected"
-                    android:id="@+id/button_alberta"
-                    android:layout_gravity="left|top"
-                    android:layout_marginLeft="90dp"
-                    android:layout_marginTop="90dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/troops_alberta"
-                    android:layout_gravity="left|top"
-                    android:layout_marginLeft="105dp"
-                    android:layout_marginTop="100dp" />
 
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:id="@+id/button_greenland"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="45dp"
-                    android:layout_marginRight="70dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/button_alberta"
+                android:layout_gravity="left|top"
+                android:layout_marginLeft="90dp"
+                android:layout_marginTop="90dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/troops_greenland"
-                    android:layout_gravity="center_horizontal|top"
-                    android:layout_marginTop="50dp"
-                    android:layout_marginRight="60dp" />
 
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:id="@+id/button_ontario"
-                    android:layout_gravity="left|top"
-                    android:layout_marginLeft="125dp"
-                    android:layout_marginTop="95dp"
-                    android:singleLine="false" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/troops_ontario"
-                    android:layout_gravity="left|top"
-                    android:layout_marginLeft="130dp"
-                    android:layout_marginTop="100dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/button_greenland"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="45dp"
+                android:layout_marginRight="70dp" />
 
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:id="@+id/button_quebec"
-                    android:layout_gravity="left|top"
-                    android:layout_marginLeft="170dp"
-                    android:layout_marginTop="95dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/troops_quebec"
-                    android:layout_gravity="left|top"
-                    android:layout_marginLeft="170dp"
-                    android:layout_marginTop="100dp" />
 
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:id="@+id/button_westernUs"
-                    android:layout_gravity="left|center_vertical"
-                    android:layout_marginBottom="50dp"
-                    android:layout_marginLeft="85dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/button_ontario"
+                android:layout_gravity="left|top"
+                android:layout_marginLeft="125dp"
+                android:layout_marginTop="95dp"
+                android:singleLine="false" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/troops_westernus"
-                    android:layout_gravity="left|center_vertical"
-                    android:layout_marginBottom="50dp"
-                    android:layout_marginLeft="85dp" />
 
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:id="@+id/button_easternUs"
-                    android:layout_gravity="left|center_vertical"
-                    android:layout_marginBottom="35dp"
-                    android:layout_marginLeft="125dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/troops_easternus"
-                    android:layout_gravity="left|center_vertical"
-                    android:layout_marginBottom="45dp"
-                    android:layout_marginLeft="140dp" />
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/button_quebec"
+                android:layout_gravity="left|top"
+                android:layout_marginLeft="170dp"
+                android:layout_marginTop="95dp" />
 
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:id="@+id/button_centralAmerica"
-                    android:layout_gravity="left|center_vertical"
-                    android:layout_marginBottom="15dp"
-                    android:layout_marginLeft="95dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/troops_centralAmerica"
-                    android:layout_gravity="left|center_vertical"
-                    android:layout_marginBottom="20dp"
-                    android:layout_marginLeft="100dp" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/button_westernUs"
+                android:layout_gravity="left|center_vertical"
+                android:layout_marginBottom="50dp"
+                android:layout_marginLeft="85dp" />
+
+
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/button_easternUs"
+                android:layout_gravity="left|center_vertical"
+                android:layout_marginBottom="35dp"
+                android:layout_marginLeft="125dp" />
+
+
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/button_centralAmerica"
+                android:layout_gravity="left|center_vertical"
+                android:layout_marginBottom="15dp"
+                android:layout_marginLeft="95dp" />
+
+
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_venezuela"
             android:layout_gravity="left|center_vertical"
             android:layout_marginLeft="120dp"
@@ -194,8 +128,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_peru"
             android:layout_gravity="left|bottom"
             android:layout_marginLeft="130dp"
@@ -203,8 +137,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_argentina"
             android:layout_gravity="left|bottom"
             android:layout_marginLeft="140dp"
@@ -212,8 +146,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_brazil"
             android:layout_gravity="left|bottom"
             android:layout_marginLeft="170dp"
@@ -221,16 +155,16 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_scandinavia"
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="55dp" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_ukraine"
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="90dp"
@@ -238,8 +172,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_northernEurope"
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="115dp"
@@ -247,8 +181,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_greatBritain"
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="100dp"
@@ -256,8 +190,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_iceland"
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="75dp"
@@ -265,8 +199,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_westernEurope"
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="145dp"
@@ -274,16 +208,16 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_southernEurope"
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="135dp" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_northAfrica"
             android:layout_gravity="center"
             android:layout_marginRight="45dp"
@@ -291,16 +225,16 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_egypt"
             android:layout_gravity="center"
             android:layout_marginTop="20dp" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_eastAfrica"
             android:layout_gravity="center"
             android:layout_marginTop="50dp"
@@ -308,24 +242,24 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_congo"
             android:layout_gravity="center_horizontal|bottom"
             android:layout_marginBottom="90dp" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_southAfrica"
             android:layout_gravity="center_horizontal|bottom"
             android:layout_marginBottom="40dp" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_madagascar"
             android:layout_gravity="center_horizontal|bottom"
             android:layout_marginBottom="45dp"
@@ -333,8 +267,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_middleEast"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
@@ -342,8 +276,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_ural"
             android:layout_gravity="center_horizontal|top"
             android:layout_marginTop="90dp"
@@ -351,8 +285,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_afghanistan"
             android:layout_gravity="center"
             android:layout_marginLeft="85dp"
@@ -360,8 +294,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_siberia"
             android:layout_gravity="right|top"
             android:layout_marginRight="155dp"
@@ -369,8 +303,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_yakutsk"
             android:layout_gravity="right|top"
             android:layout_marginRight="100dp"
@@ -378,8 +312,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_kamchatka"
             android:layout_gravity="right|top"
             android:layout_marginRight="40dp"
@@ -387,8 +321,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_irkutsk"
             android:layout_gravity="right|top"
             android:layout_marginRight="115dp"
@@ -396,8 +330,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_mongolia"
             android:layout_gravity="right|center_vertical"
             android:layout_marginRight="100dp"
@@ -405,8 +339,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_japan"
             android:layout_gravity="right|center_vertical"
             android:layout_marginRight="65dp"
@@ -414,8 +348,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_china"
             android:layout_gravity="right|center_vertical"
             android:layout_marginRight="140dp"
@@ -423,8 +357,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_india"
             android:layout_gravity="right|center_vertical"
             android:layout_marginRight="175dp"
@@ -432,8 +366,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_siam"
             android:layout_gravity="right|center_vertical"
             android:layout_marginRight="130dp"
@@ -441,8 +375,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_westernAustralia"
             android:layout_gravity="right|bottom"
             android:layout_marginRight="115dp"
@@ -450,8 +384,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_easternAustralia"
             android:layout_gravity="right|bottom"
             android:layout_marginRight="70dp"
@@ -459,8 +393,8 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_newGuinea"
             android:layout_gravity="right|bottom"
             android:layout_marginRight="60dp"
@@ -468,9 +402,495 @@
 
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/button_indonesia"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="115dp"
+            android:layout_marginBottom="110dp" />
+
+
+
+
+
+
+
+
+
+
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_alaska"
+            android:layout_gravity="left|top"
+            android:layout_marginTop="65dp"
+            android:layout_marginLeft="25dp" />
+
+
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_nwTerritory"
+            android:layout_gravity="left|top"
+            android:layout_marginLeft="75dp"
+            android:layout_marginTop="65dp" />
+
+
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_alberta"
+            android:layout_gravity="left|top"
+            android:layout_marginLeft="90dp"
+            android:layout_marginTop="90dp" />
+
+
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_greenland"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="45dp"
+            android:layout_marginRight="70dp" />
+
+
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_ontario"
+            android:layout_gravity="left|top"
+            android:layout_marginLeft="125dp"
+            android:layout_marginTop="95dp"
+            android:singleLine="false" />
+
+
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_quebec"
+            android:layout_gravity="left|top"
+            android:layout_marginLeft="170dp"
+            android:layout_marginTop="95dp" />
+
+
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_westernUs"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginBottom="50dp"
+            android:layout_marginLeft="85dp" />
+
+
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_easternUs"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginBottom="35dp"
+            android:layout_marginLeft="125dp" />
+
+
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_centralAmerica"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="95dp" />
+
+
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_venezuela"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="120dp"
+            android:layout_marginTop="30dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_peru"
+            android:layout_gravity="left|bottom"
+            android:layout_marginLeft="130dp"
+            android:layout_marginBottom="95dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_argentina"
+            android:layout_gravity="left|bottom"
+            android:layout_marginLeft="140dp"
+            android:layout_marginBottom="60dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_brazil"
+            android:layout_gravity="left|bottom"
+            android:layout_marginLeft="170dp"
+            android:layout_marginBottom="105dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_scandinavia"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="55dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_ukraine"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="90dp"
+            android:layout_marginLeft="50dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_northernEurope"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="115dp"
+            android:layout_marginRight="15dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_greatBritain"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="100dp"
+            android:layout_marginRight="45dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_iceland"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="75dp"
+            android:layout_marginRight="45dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_westernEurope"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="145dp"
+            android:layout_marginRight="45dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_southernEurope"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="135dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_northAfrica"
+            android:layout_gravity="center"
+            android:layout_marginRight="45dp"
+            android:layout_marginTop="30dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_egypt"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_eastAfrica"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:layout_marginLeft="25dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_congo"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="90dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_southAfrica"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="40dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_madagascar"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="45dp"
+            android:layout_marginLeft="45dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_middleEast"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="45dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_ural"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="90dp"
+            android:layout_marginLeft="100dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_afghanistan"
+            android:layout_gravity="center"
+            android:layout_marginLeft="85dp"
+            android:layout_marginBottom="40dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_siberia"
+            android:layout_gravity="right|top"
+            android:layout_marginRight="155dp"
+            android:layout_marginTop="75dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_yakutsk"
+            android:layout_gravity="right|top"
+            android:layout_marginRight="100dp"
+            android:layout_marginTop="60dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_kamchatka"
+            android:layout_gravity="right|top"
+            android:layout_marginRight="40dp"
+            android:layout_marginTop="65dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_irkutsk"
+            android:layout_gravity="right|top"
+            android:layout_marginRight="115dp"
+            android:layout_marginTop="100dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_mongolia"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="100dp"
+            android:layout_marginBottom="50dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_japan"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="65dp"
+            android:layout_marginBottom="40dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_china"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="140dp"
+            android:layout_marginBottom="15dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_india"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="175dp"
+            android:layout_marginTop="15dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_siam"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="130dp"
+            android:layout_marginTop="25dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_westernAustralia"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="115dp"
+            android:layout_marginBottom="50dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_easternAustralia"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="70dp"
+            android:layout_marginBottom="50dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_newGuinea"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="60dp"
+            android:layout_marginBottom="100dp" />
+
+        <TextView
+            android:text="12"
+            android:textSize="20sp"
+            style="?android:attr/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/troops_indonesia"
             android:layout_gravity="right|bottom"
             android:layout_marginRight="115dp"
             android:layout_marginBottom="110dp" />
