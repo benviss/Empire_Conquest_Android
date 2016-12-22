@@ -13,7 +13,6 @@ import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.BaseGameUtils;
 import com.vizo.empireconquest.R;
 import com.vizo.empireconquest.models.Board;
-import com.vizo.empireconquest.models.Player;
 
 import java.util.ArrayList;
 
@@ -85,11 +84,11 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             case R.id.button_test:
                 Board board = new Board();
                 ArrayList players = new ArrayList();
-                Player player1 = new Player("Player 1", "test");
-                Player player2 = new Player("Player 2", "test");
-                players.add(player1);
-                players.add(player2);
-                board.assignTerritories(players);
+//                Player player1 = new Player("Player 1", "test");
+//                Player player2 = new Player("Player 2", "test");
+//                players.add(player1);
+//                players.add(player2);
+//                board.assignTerritories(players);
                 break;
         }
     }

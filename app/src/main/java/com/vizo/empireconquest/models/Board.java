@@ -10,8 +10,8 @@ import java.util.Random;
 public class Board {
     private ArrayList<Territory> territories = new ArrayList<>();
 //    private ArrayList<String> unmappedTerritories = new ArrayList<>(Arrays.asList("Alaska", "Northwest Territory", "Greenland", "Alberta", "Ontario", "Western United States", "Eastern United States", "Central America"));
-    private ArrayList<String> unmappedTerritories = new ArrayList<>(Arrays.asList("Alaska", "Northwest Territory", "Greenland", "Alberta", "Ontario", "Western United States", "Eastern United States", "Central America", "Venezuela","Brazil", "Peru", "Argentina", "South Africa", "Madagascar", "Congo", "East Africa", "Egypt", "Western Europe","Southern Europe", "Northern Europe", "Great Britain", "Ukraine", "Scandinavia", "Iceland", "Middle East", "Afghanistan", "Ural","Siberia", "India", "China", "Mongolia", "Irkutsk", "Yakutsk", "Kamchatka", "Japan", "Siam", "Indonesia","New Guinea", "Western Australia", "Eastern Australia"));
-    private ArrayList<String> territoriesIndexed = new ArrayList<>(Arrays.asList("Alaska", "Northwest Territory", "Greenland", "Alberta", "Ontario", "Western United States", "Eastern United States", "Central America", "Venezuela","Brazil", "Peru", "Argentina", "South Africa", "Madagascar", "Congo", "East Africa", "Egypt", "Western Europe","Southern Europe", "Northern Europe", "Great Britain", "Ukraine", "Scandinavia", "Iceland", "Middle East", "Afghanistan", "Ural","Siberia", "India", "China", "Mongolia", "Irkutsk", "Yakutsk", "Kamchatka", "Japan", "Siam", "Indonesia","New Guinea", "Western Australia", "Eastern Australia"));
+    private ArrayList<String> unmappedTerritories = new ArrayList<>(Arrays.asList("Alaska", "Northwest Territory", "Greenland", "Alberta", "Ontario","Quebec" ,"Western United States", "Eastern United States", "Central America", "Venezuela","Brazil", "Peru", "Argentina", "South Africa", "Madagascar", "Congo", "East Africa", "Egypt", "North Africa", "Western Europe","Southern Europe", "Northern Europe", "Great Britain", "Ukraine", "Scandinavia", "Iceland", "Middle East", "Afghanistan", "Ural","Siberia", "India", "China", "Mongolia", "Irkutsk", "Yakutsk", "Kamchatka", "Japan", "Siam", "Indonesia","New Guinea", "Western Australia", "Eastern Australia"));
+    private ArrayList<String> territoriesIndexed = new ArrayList<>(Arrays.asList("Alaska", "Northwest Territory", "Greenland", "Alberta", "Ontario","Quebec" ,"Western United States", "Eastern United States", "Central America", "Venezuela","Brazil", "Peru", "Argentina", "South Africa", "Madagascar", "Congo", "East Africa", "Egypt", "North Africa", "Western Europe","Southern Europe", "Northern Europe", "Great Britain", "Ukraine", "Scandinavia", "Iceland", "Middle East", "Afghanistan", "Ural","Siberia", "India", "China", "Mongolia", "Irkutsk", "Yakutsk", "Kamchatka", "Japan", "Siam", "Indonesia","New Guinea", "Western Australia", "Eastern Australia"));
 
 
     public void assignTerritories(ArrayList<Player> players) {
@@ -26,7 +26,7 @@ public class Board {
             int randomInt = randomGenerator.nextInt(unmappedTerritories.size());
 
             //assign player and increment playerIndex to complete player assignment randomization
-            Territory newTerritory = new Territory(unmappedTerritories.get(randomInt), players.get(playerIndex));
+            Territory newTerritory = new Territory(unmappedTerritories.get(randomInt), players.get(playerIndex), randomInt);
             players.get(playerIndex).newTerritory(newTerritory);
             playerIndex++;
 

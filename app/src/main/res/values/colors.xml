@@ -3,4 +3,12 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="green">#008000</color>
+    <color name="player2">#0000FF</color>
+    <color name="player3">#800000</color>
+    <color name="player4">#C0C0C0</color>
+    <color name="player5">#808000</color>
+    <color name="player6">#800080</color>
+    <color name="player7">#FF4081</color>
+    <color name="player8">#FF4081</color>
 </resources>

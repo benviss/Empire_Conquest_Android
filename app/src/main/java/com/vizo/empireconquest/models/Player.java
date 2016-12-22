@@ -13,8 +13,10 @@ public class Player {
     public String name;
     private String playerId;
     private boolean turnReady = false;
+    private String playerNumber;
 
-    public Player(String name, String playerId) {
+    public Player(String name, String playerId, int playerNumber) {
+        this.playerNumber = "player" + playerNumber;
         this.playerId = playerId;
         this.name = name;
         territories = new ArrayList<>();
@@ -42,6 +44,10 @@ public class Player {
 
     public String getPlayerId() {
         return playerId;
+    }
+
+    public String getPlayerNumber() {
+        return playerNumber;
     }
 
 

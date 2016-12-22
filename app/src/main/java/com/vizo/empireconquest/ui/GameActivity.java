@@ -2,11 +2,13 @@ package com.vizo.empireconquest.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GameActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener, RealTimeMessageReceivedListener,
@@ -86,6 +90,8 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
     //Game State
     boolean gameOn = false;
+    boolean attack = false;
+    boolean reinforce = false;
 
 
     @Override
@@ -278,8 +284,10 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
         //get participants and my ID:
         mParticipants = room.getParticipants();
+        int playerNumber = 1;
         for (Participant p : mParticipants) {
-            Player newPlayer = new Player(p.getDisplayName(), p.getParticipantId());
+            Player newPlayer = new Player(p.getDisplayName(), p.getParticipantId(), playerNumber);
+            playerNumber++;
             players.add(newPlayer);
         }
         mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(mGoogleApiClient));
@@ -436,14 +444,17 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
      */
     public void run()
     {
-        //Looping until the boolean is false
-//        while (gameOn)
-//        {
-////            processInput();
-//            update();
-//            try {Thread.sleep(1000);}
-//            catch (InterruptedException ex) {}
-//        }
+        //runs once at beginning of game until territories are synced
+        colorTerritories();
+//        Looping until the boolean is false
+        while (gameOn)
+        {
+
+//            processInput();
+            update();
+            try {Thread.sleep(1000);}
+            catch (InterruptedException ex) {}
+        }
     }
 
     // Reset game variables in preparation for a new game.
@@ -455,13 +466,11 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     void startGame() {
         switchToScreen(R.id.screen_game);
         board = new Board();
-
         players = sortPlayers(players);
         if (players.get(0).getPlayerId() == mMyId) {
             createBoard(players);
             syncTerritories(board.getTerritories(), players);
         }
-        gameOn = true;
         run();
     }
 
@@ -509,8 +518,8 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         int t = 1;
         int p = 2;
         //TODO dont hardcode you noob
-        for (int i = 1; i < 40; i++) {
-            Territory newTerritory = new Territory(indexedTerritories.get(buf[t]), players.get(buf[p]));
+        for (int i = 0; i < 42; i++) {
+            Territory newTerritory = new Territory(indexedTerritories.get(buf[t]), players.get(buf[p]), buf[t]);
             territories.add(newTerritory);
             t += 2;
             p += 2;
@@ -549,8 +558,57 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
      * UI SECTION. Methods that implement the game's UI.
      */
 
+    public void colorTerritories() {
+        if (territories.size() > 10) {
+            final int[] TestCLICKABLES = CLICKABLES;
+            new Thread() {
+                public void run() {
+                    try {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (int i = 0; i < territories.size(); i++) {
+                                Button button = (Button) findViewById(TestCLICKABLES[territories.get(i).getIndex()]);
+                                switch (territories.get(i).getPlayerOwned().getPlayerNumber()) {
+                                    case "player1":
+                                        button.setBackgroundColor(Color.RED);
+                                        break;
+                                    case "player2":
+                                        button.setBackgroundColor(Color.BLUE);
+                                        break;
+                                    case "player3":
+                                        button.setBackgroundColor(Color.GREEN);
+                                        break;
+                                    case "player4":
+                                        button.setBackgroundColor(Color.CYAN);
+                                        break;
+                                    case "player5":
+                                        button.setBackgroundColor(Color.MAGENTA);
+                                        break;
+                                }
+                            }
+                        }
+                    });
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+
+        } else {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    colorTerritories();
+                }
+            }, 2000);
+        }
+    }
+
+
     final static int[] CLICKABLES = {
-            R.id.button_alaska, R.id.button_nwTerritory, R.id.button_greenland, R.id.button_alberta, R.id.button_ontario, R.id.button_quebec, R.id.button_westernUs, R.id.button_easternUs, R.id.button_centralAmerica
+            R.id.button_alaska, R.id.button_nwTerritory, R.id.button_greenland, R.id.button_alberta, R.id.button_ontario, R.id.button_quebec, R.id.button_westernUs, R.id.button_easternAustralia, R.id.button_centralAmerica, R.id.button_venezuela, R.id.button_brazil, R.id.button_peru, R.id.button_argentina, R.id.button_southAfrica, R.id.button_madagascar, R.id.button_congo, R.id.button_eastAfrica, R.id.button_egypt, R.id.button_northAfrica, R.id.button_westernEurope,R.id.button_southernEurope, R.id.button_northernEurope, R.id.button_greatBritain, R.id.button_ukraine, R.id.button_scandinavia, R.id.button_iceland, R.id.button_middleEast, R.id.button_afghanistan, R.id.button_ural,R.id.button_siberia, R.id.button_india, R.id.button_china, R.id.button_mongolia, R.id.button_irkutsk, R.id.button_yakutsk, R.id.button_kamchatka, R.id.button_japan, R.id.button_siam, R.id.button_indonesia,R.id.button_newGuinea, R.id.button_westernAustralia, R.id.button_easternAustralia
     };
 
     // This array lists all the individual screens our game has.

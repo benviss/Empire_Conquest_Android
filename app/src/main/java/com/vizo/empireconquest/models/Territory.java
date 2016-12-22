@@ -9,12 +9,14 @@ public class Territory {
     private String name;
     private int troops;
     private Player playerOwned;
+    private int index;
 
 
-    public Territory(String name, Player playerOwned) {
+    public Territory(String name, Player playerOwned, int index) {
         this.name = name;
         this.troops = 1;
         this.playerOwned = playerOwned;
+        this.index = index;
     }
 
     public String getName() {
@@ -39,5 +41,9 @@ public class Territory {
 
     public void setPlayerOwned(Player playerOwned) {
         this.playerOwned = playerOwned;
+    }
+
+    public int getIndex() {
+        return index;
     }
 }
