@@ -50,4 +50,16 @@ public class Territory {
     public void addReinforcements() {
         troops += playerOwned.getReinforcements();
     }
+
+    public static void territoryBattle(Territory one, Territory two) {
+        if (one.getTroops() > two.getTroops()) {
+            two.setPlayerOwned(one.getPlayerOwned());
+            one.setTroops(one.getTroops() / 2);
+            two.setTroops(one.getTroops() / 2);
+        } else {
+            one.setPlayerOwned(two.getPlayerOwned());
+            two.setTroops(two.getTroops() / 2);
+            one.setTroops(two.getTroops() / 2);
+        }
+    }
 }

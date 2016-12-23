@@ -9,7 +9,7 @@ import java.util.ArrayList;
 //TODO Google Play Services contains player abstract class, implement later
 public class Player {
     public ArrayList<Territory> territories;
-    private int reinforcements;
+    private int reinforcements = 2;
     public String name;
     private String playerId;
     private boolean turnReady = false;

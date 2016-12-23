@@ -81,6 +81,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
     // Player Array
     ArrayList<Player> players = new ArrayList<>();
+    Player me;
 
     //Keeping track of player inputs, determining next round or not
 
@@ -88,10 +89,17 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     //Territory Array
     ArrayList<Territory> territories = new ArrayList<>();
 
+
+    //For Battles
+    boolean territorySelected = false;
+    Territory firstTerritory;
+    Territory secondTerritory;
+
     //Game State
     boolean gameOn = false;
     boolean attack = false;
     boolean reinforce = false;
+    long lastReinforce = System.currentTimeMillis();
     boolean unSynced = false;
 
 
@@ -112,25 +120,49 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         for (int id : CLICKABLES) {
             findViewById(id).setOnClickListener(this);
         }
-        for (int id : TROOPS) {
-            findViewById(id).setOnClickListener(this);
-        }
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.button_alaska:
-                for (Territory t : players.get(0).getTerritories()) {
-                    Log.d(TAG, t.getName() + t.getPlayerOwned());
+        update();
+        if (!territorySelected) {
+            territorySelected = true;
+            for (int i = 0; i < CLICKABLES.length; i++) {
+                if (v.getId() == CLICKABLES[i]) {
+                    firstTerritory = findTerritory(i);
                 }
-            break;
+            }
+        } else {
+            for (int i = 0; i < CLICKABLES.length; i++) {
+                if (v.getId() == CLICKABLES[i]) {
+                    secondTerritory = findTerritory(i);
+                }
+            }
+        }
+        if ((firstTerritory != null) && (secondTerritory != null)) {
+            territorySelected = false;
+            Territory.territoryBattle(firstTerritory, secondTerritory);
+            for (Participant p : mParticipants) {
+                if (p.getParticipantId() != mMyId) {
+                    byte[] bytes = new byte[3];
+                    bytes[0] = 2;
+                    bytes[1] = (byte) firstTerritory.getIndex();
+                    bytes[2] = (byte) secondTerritory.getIndex();
+
+                    Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, bytes, mRoomId, p.getParticipantId());
+                }
+            }
+            firstTerritory = null;
+            secondTerritory = null;
+            updateTerritoryUi();
+
+
         }
     }
 
     void startQuickGame() {
         //quick game with 1 random opponent
-        final int MIN_OPPONENTS = 2, MAX_OPPONENTS = 2;
+        final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 2;
         Bundle autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS, MAX_OPPONENTS, 0);
         RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(this);
         rtmConfigBuilder.setMessageReceivedListener(this);
@@ -293,6 +325,9 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             Player newPlayer = new Player(p.getDisplayName(), p.getParticipantId(), playerNumber);
             playerNumber++;
             players.add(newPlayer);
+            if (p.getParticipantId() == mMyId) {
+                me = newPlayer;
+            }
         }
         mMyId = room.getParticipantId(Games.Players.getCurrentPlayerId(mGoogleApiClient));
 
@@ -446,20 +481,78 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     /*
      * GAME LOGIC SECTION. Methods that implement the game's rules.
      */
-    public void run()
-    {
-        //runs once at beginning of game until territories are synced
-        updateTerritoryUi();
-//        Looping until the boolean is false
-        while (gameOn)
-        {
 
-//            processInput();
-            update();
-            try {Thread.sleep(1000);}
-            catch (InterruptedException ex) {}
-        }
-    }
+    // desired fps
+    private final static int    MAX_FPS = 50;
+    // maximum number of frames to be skipped
+    private final static int    MAX_FRAME_SKIPS = 5;
+    // the frame period
+    private final static int    FRAME_PERIOD = 1000 / MAX_FPS;
+
+
+//    @Override
+//    public void run() {
+//        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+//        Canvas canvas;
+//        Log.d(TAG, "Starting game loop");
+//        long beginTime;     // the time when the cycle begun
+//
+//        long timeDiff;      // the time it took for the cycle to execute
+//
+//        int sleepTime;      // ms to sleep (<0 if we're behind)
+//
+//        int framesSkipped;  // number of frames being skipped
+//        sleepTime = 0;
+//        while (gameOn) {
+//            try {
+//                beginTime = System.currentTimeMillis();
+//                framesSkipped = 0;  // resetting the frames skipped
+//                // update game state
+//                update();
+//                // render state to the screen
+//                // draws the canvas on the panel
+//                updateTerritoryUi();
+//                Log.d(TAG, "here");
+//                // calculate how long did the cycle take
+//                timeDiff = System.currentTimeMillis() - beginTime;
+//                // calculate sleep time
+//                sleepTime = (int)(FRAME_PERIOD - timeDiff);
+//                if (sleepTime > 0) {
+//                    // if sleepTime > 0 we're OK
+//                    try {
+//                        // send the thread to sleep for a short period
+//                        // very useful for battery saving
+//                        Thread.sleep(sleepTime);
+//                    } catch (InterruptedException e) {}
+//                while (sleepTime < 0 && framesSkipped < MAX_FRAME_SKIPS) {
+//                    // we need to catch up
+//                    // update without rendering
+//                    update();
+//                    // add frame period to check if in next frame
+//                    sleepTime += FRAME_PERIOD;
+//                    framesSkipped++;
+//                }
+//                }
+//            } finally {
+//                // in case of an exception the surface is not left in
+//                // an inconsistent state
+//
+//            }   // end finally
+//        }
+//    }
+//    @Override
+//    public void run()
+//    {
+//        //runs once at beginning of game until territories are synced
+//        updateTerritoryUi();
+////        Looping until the boolean is false
+//        while (gameOn)
+//        {
+//            if (mCurScreen != R.id.screen_game) switchToScreen(R.id.screen_game);
+////            processInput();
+//            update();
+//        }
+//    }
 
     // Reset game variables in preparation for a new game.
     void resetGameVars() {
@@ -474,8 +567,9 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         if (players.get(0).getPlayerId() == mMyId) {
             createBoard(players);
             syncTerritories(board.getTerritories(), players);
+            updateTerritoryUi();
         }
-        run();
+        gameOn = true;
     }
 
     //Sorts Players by id and determines creator of board
@@ -495,8 +589,14 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     }
 
     public void update() {
+        if (System.currentTimeMillis() - lastReinforce > 5000) {
+            Log.d(TAG, "reifnorce time");
+            lastReinforce = System.currentTimeMillis();
+            reinforce = true;
+        }
         if (reinforce) {
             reinforceAll();
+            updateTerritoryUi();
         }
     }
 
@@ -514,6 +614,10 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         switch (buf[0]) {
             case 0:
                 syncGameData(buf, players);
+                break;
+            case 2:
+                Territory.territoryBattle(findTerritory((int) buf[1]), findTerritory((int) buf[2]));
+                updateTerritoryUi();
                 break;
         }
 //        Toast.makeText(GameActivity.this, "Message received: " + (int) buf[0] + "/" + (int) buf[1], Toast.LENGTH_SHORT).show();
@@ -568,31 +672,12 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     // update Territory troops
     public void reinforceAll() {
         reinforce = false;
-        try {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    for (Player p : players) {
-                        for (Territory t: p.getTerritories()) {
-                            TextView textView = (TextView) findViewById(TROOPS[t.getIndex()]);
-                            textView.setText(null);
-                            textView.append(Integer.toString(t.getTroops()));
-                            if (t.getPlayerOwned().getPlayerNumber().equals("player1")) {
-                                textView.setTextColor(Color.RED);
-                            }
-
-                            if (t.getPlayerOwned().getPlayerNumber().equals("player2")) {
-                                textView.setTextColor(Color.BLUE);
-                            }if (t.getPlayerOwned().getPlayerNumber().equals("player3")) {
-                                textView.setTextColor(Color.GREEN);
-                            }
-                        }
-                    }
-                }
-            });
-            Thread.sleep(300);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        for (Player p : players) {
+            Log.d(TAG, "loopin");
+            for (Territory t : p.getTerritories()) {
+                t.addReinforcements();
+                Log.d(TAG, Integer.toString(t.getTroops()));
+            }
         }
     }
 
@@ -690,5 +775,16 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             startActivity(intent);
 //            switchToScreen(R.id.screen_sign_in);
         }
+    }
+
+    public Territory findTerritory(int index) {
+        Territory territory;
+        for (Territory t : territories) {
+            if (t.getIndex() == index) {
+                territory = t;
+                return territory;
+            }
+        }
+        return null;
     }
 }
