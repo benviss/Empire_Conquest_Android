@@ -11,6 +11,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.BaseGameUtils;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.vizo.empireconquest.R;
 import com.vizo.empireconquest.models.Board;
 
@@ -57,6 +59,9 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         for (int id : CLICKABLES) {
             findViewById(id).setOnClickListener(this);
         }
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference();
+        myRef.child("Game").setValue("what");
 
     }
 

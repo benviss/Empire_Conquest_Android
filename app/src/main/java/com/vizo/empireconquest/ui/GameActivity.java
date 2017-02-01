@@ -3,6 +3,7 @@ package com.vizo.empireconquest.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -10,6 +11,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
@@ -25,6 +29,8 @@ import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.example.games.basegameutils.BaseGameUtils;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.vizo.empireconquest.R;
 import com.vizo.empireconquest.models.Board;
 import com.vizo.empireconquest.models.Player;
@@ -40,7 +46,7 @@ import java.util.TimerTask;
 
 public class GameActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener, RealTimeMessageReceivedListener,
-        RoomStatusUpdateListener, RoomUpdateListener, Serializable{
+        RoomStatusUpdateListener, RoomUpdateListener, Serializable {
 
     final static String TAG = "Ben Vissotzky";
 
@@ -103,23 +109,33 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     boolean unSynced = false;
 
 
+
+    //myRef.setValue("Hello, World!");
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_map);
         switchToScreen(R.id.screen_wait);
 
+        // ATTENTION: This "addApi(AppIndex.API)"was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
-                .build();
+                .addApi(AppIndex.API).build();
 
         mGoogleApiClient.connect();
 
         for (int id : CLICKABLES) {
             findViewById(id).setOnClickListener(this);
         }
+        //Database
+
+
     }
 
     @Override
@@ -214,6 +230,9 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             mGoogleApiClient.connect();
         }
         super.onStart();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.start(mGoogleApiClient, getIndexApiAction());
     }
 
     // Activity is going to the background. We have to leave the current room.
@@ -232,7 +251,12 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         } else {
             switchToScreen(R.id.screen_wait);
         }
-        super.onStop();
+        super.onStop();// ATTENTION: This was auto-generated to implement the App Indexing API.
+// See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(mGoogleApiClient, getIndexApiAction());
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        mGoogleApiClient.disconnect();
     }
 
     // Handle back key to make sure we cleanly leave a game if we are in the middle of one
@@ -483,11 +507,11 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
      */
 
     // desired fps
-    private final static int    MAX_FPS = 50;
+    private final static int MAX_FPS = 50;
     // maximum number of frames to be skipped
-    private final static int    MAX_FRAME_SKIPS = 5;
+    private final static int MAX_FRAME_SKIPS = 5;
     // the frame period
-    private final static int    FRAME_PERIOD = 1000 / MAX_FPS;
+    private final static int FRAME_PERIOD = 1000 / MAX_FPS;
 
 
 //    @Override
@@ -687,32 +711,33 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             final int[] TestTROOPS = TROOPS;
 //            new Thread() {
 //                public void run() {
-                    try {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            for (Player p : players) {
-                                for (Territory t: p.getTerritories()) {
-                                    TextView textView = (TextView) findViewById(TestTROOPS[t.getIndex()]);
-                                    textView.setText(null);
-                                    textView.append(Integer.toString(t.getTroops()));
-                                    if (t.getPlayerOwned().getPlayerNumber().equals("player1")) {
-                                        textView.setTextColor(Color.RED);
-                                    }
+            try {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (Player p : players) {
+                            for (Territory t : p.getTerritories()) {
+                                TextView textView = (TextView) findViewById(TestTROOPS[t.getIndex()]);
+                                textView.setText(null);
+                                textView.append(Integer.toString(t.getTroops()));
+                                if (t.getPlayerOwned().getPlayerNumber().equals("player1")) {
+                                    textView.setTextColor(Color.RED);
+                                }
 
-                                    if (t.getPlayerOwned().getPlayerNumber().equals("player2")) {
-                                        textView.setTextColor(Color.BLUE);
-                                    }if (t.getPlayerOwned().getPlayerNumber().equals("player3")) {
-                                        textView.setTextColor(Color.GREEN);
-                                    }
+                                if (t.getPlayerOwned().getPlayerNumber().equals("player2")) {
+                                    textView.setTextColor(Color.BLUE);
+                                }
+                                if (t.getPlayerOwned().getPlayerNumber().equals("player3")) {
+                                    textView.setTextColor(Color.GREEN);
                                 }
                             }
                         }
-                    });
-                        Thread.sleep(300);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
                     }
+                });
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 //                }
 //            }.start();
 //
@@ -728,10 +753,10 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
 
     final static int[] CLICKABLES = {
-            R.id.button_alaska, R.id.button_nwTerritory, R.id.button_greenland, R.id.button_alberta, R.id.button_ontario, R.id.button_quebec, R.id.button_westernUs, R.id.button_easternUs, R.id.button_centralAmerica, R.id.button_venezuela, R.id.button_brazil, R.id.button_peru, R.id.button_argentina, R.id.button_southAfrica, R.id.button_madagascar, R.id.button_congo, R.id.button_eastAfrica, R.id.button_egypt, R.id.button_northAfrica, R.id.button_westernEurope,R.id.button_southernEurope, R.id.button_northernEurope, R.id.button_greatBritain, R.id.button_ukraine, R.id.button_scandinavia, R.id.button_iceland, R.id.button_middleEast, R.id.button_afghanistan, R.id.button_ural,R.id.button_siberia, R.id.button_india, R.id.button_china, R.id.button_mongolia, R.id.button_irkutsk, R.id.button_yakutsk, R.id.button_kamchatka, R.id.button_japan, R.id.button_siam, R.id.button_indonesia,R.id.button_newGuinea, R.id.button_westernAustralia, R.id.button_easternAustralia
+            R.id.button_alaska, R.id.button_nwTerritory, R.id.button_greenland, R.id.button_alberta, R.id.button_ontario, R.id.button_quebec, R.id.button_westernUs, R.id.button_easternUs, R.id.button_centralAmerica, R.id.button_venezuela, R.id.button_brazil, R.id.button_peru, R.id.button_argentina, R.id.button_southAfrica, R.id.button_madagascar, R.id.button_congo, R.id.button_eastAfrica, R.id.button_egypt, R.id.button_northAfrica, R.id.button_westernEurope, R.id.button_southernEurope, R.id.button_northernEurope, R.id.button_greatBritain, R.id.button_ukraine, R.id.button_scandinavia, R.id.button_iceland, R.id.button_middleEast, R.id.button_afghanistan, R.id.button_ural, R.id.button_siberia, R.id.button_india, R.id.button_china, R.id.button_mongolia, R.id.button_irkutsk, R.id.button_yakutsk, R.id.button_kamchatka, R.id.button_japan, R.id.button_siam, R.id.button_indonesia, R.id.button_newGuinea, R.id.button_westernAustralia, R.id.button_easternAustralia
     };
     final static int[] TROOPS = {
-            R.id.troops_alaska, R.id.troops_nwTerritory, R.id.troops_greenland, R.id.troops_alberta, R.id.troops_ontario, R.id.troops_quebec, R.id.troops_westernUs, R.id.troops_easternUs, R.id.troops_centralAmerica, R.id.troops_venezuela, R.id.troops_brazil, R.id.troops_peru, R.id.troops_argentina, R.id.troops_southAfrica, R.id.troops_madagascar, R.id.troops_congo, R.id.troops_eastAfrica, R.id.troops_egypt, R.id.troops_northAfrica, R.id.troops_westernEurope,R.id.troops_southernEurope, R.id.troops_northernEurope, R.id.troops_greatBritain, R.id.troops_ukraine, R.id.troops_scandinavia, R.id.troops_iceland, R.id.troops_middleEast, R.id.troops_afghanistan, R.id.troops_ural,R.id.troops_siberia, R.id.troops_india, R.id.troops_china, R.id.troops_mongolia, R.id.troops_irkutsk, R.id.troops_yakutsk, R.id.troops_kamchatka, R.id.troops_japan, R.id.troops_siam, R.id.troops_indonesia,R.id.troops_newGuinea, R.id.troops_westernAustralia, R.id.troops_easternAustralia
+            R.id.troops_alaska, R.id.troops_nwTerritory, R.id.troops_greenland, R.id.troops_alberta, R.id.troops_ontario, R.id.troops_quebec, R.id.troops_westernUs, R.id.troops_easternUs, R.id.troops_centralAmerica, R.id.troops_venezuela, R.id.troops_brazil, R.id.troops_peru, R.id.troops_argentina, R.id.troops_southAfrica, R.id.troops_madagascar, R.id.troops_congo, R.id.troops_eastAfrica, R.id.troops_egypt, R.id.troops_northAfrica, R.id.troops_westernEurope, R.id.troops_southernEurope, R.id.troops_northernEurope, R.id.troops_greatBritain, R.id.troops_ukraine, R.id.troops_scandinavia, R.id.troops_iceland, R.id.troops_middleEast, R.id.troops_afghanistan, R.id.troops_ural, R.id.troops_siberia, R.id.troops_india, R.id.troops_china, R.id.troops_mongolia, R.id.troops_irkutsk, R.id.troops_yakutsk, R.id.troops_kamchatka, R.id.troops_japan, R.id.troops_siam, R.id.troops_indonesia, R.id.troops_newGuinea, R.id.troops_westernAustralia, R.id.troops_easternAustralia
     };
 
     // This array lists all the individual screens our game has.
@@ -786,5 +811,21 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             }
         }
         return null;
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Game Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
     }
 }
