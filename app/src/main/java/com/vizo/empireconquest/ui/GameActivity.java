@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -29,10 +30,9 @@ import com.google.android.gms.games.multiplayer.realtime.RoomConfig;
 import com.google.android.gms.games.multiplayer.realtime.RoomStatusUpdateListener;
 import com.google.android.gms.games.multiplayer.realtime.RoomUpdateListener;
 import com.google.example.games.basegameutils.BaseGameUtils;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.vizo.empireconquest.R;
 import com.vizo.empireconquest.models.Board;
+import com.vizo.empireconquest.models.Node;
 import com.vizo.empireconquest.models.Player;
 import com.vizo.empireconquest.models.Territory;
 
@@ -92,8 +92,8 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     //Keeping track of player inputs, determining next round or not
 
 
-    //Territory Array
-    ArrayList<Territory> territories = new ArrayList<>();
+    //Node Array
+    ArrayList<Node> nodes = new ArrayList<>();
 
 
     //For Battles
@@ -130,7 +130,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
         mGoogleApiClient.connect();
 
-        for (int id : CLICKABLES) {
+        for (int id : NODES) {
             findViewById(id).setOnClickListener(this);
         }
         //Database
@@ -140,7 +140,8 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
     @Override
     public void onClick(View v) {
-        update();
+        Toast.makeText(this, "Hi", Toast.LENGTH_SHORT).show();
+/*        update();
         if (!territorySelected) {
             territorySelected = true;
             for (int i = 0; i < CLICKABLES.length; i++) {
@@ -170,15 +171,15 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             }
             firstTerritory = null;
             secondTerritory = null;
-            updateTerritoryUi();
+            UpdateNodeUI();
 
 
-        }
+        }*/
     }
 
     void startQuickGame() {
         //quick game with 1 random opponent
-        final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 2;
+        final int MIN_OPPONENTS = 1, MAX_OPPONENTS = 1;
         Bundle autoMatchCriteria = RoomConfig.createAutoMatchCriteria(MIN_OPPONENTS, MAX_OPPONENTS, 0);
         RoomConfig.Builder rtmConfigBuilder = RoomConfig.builder(this);
         rtmConfigBuilder.setMessageReceivedListener(this);
@@ -535,7 +536,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 //                update();
 //                // render state to the screen
 //                // draws the canvas on the panel
-//                updateTerritoryUi();
+//                UpdateNodeUI();
 //                Log.d(TAG, "here");
 //                // calculate how long did the cycle take
 //                timeDiff = System.currentTimeMillis() - beginTime;
@@ -564,19 +565,16 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 //            }   // end finally
 //        }
 //    }
-//    @Override
-//    public void run()
-//    {
-//        //runs once at beginning of game until territories are synced
-//        updateTerritoryUi();
-////        Looping until the boolean is false
-//        while (gameOn)
-//        {
-//            if (mCurScreen != R.id.screen_game) switchToScreen(R.id.screen_game);
-////            processInput();
-//            update();
-//        }
-//    }
+    public void run()
+    {
+//        Looping until the boolean is false
+        while (gameOn)
+        {
+            if (mCurScreen != R.id.screen_game) switchToScreen(R.id.screen_game);
+//            processInput();
+            update();
+        }
+    }
 
     // Reset game variables in preparation for a new game.
     void resetGameVars() {
@@ -588,12 +586,11 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         switchToScreen(R.id.screen_game);
         board = new Board();
         players = sortPlayers(players);
-        if (players.get(0).getPlayerId() == mMyId) {
-            createBoard(players);
-            syncTerritories(board.getTerritories(), players);
-            updateTerritoryUi();
-        }
+        createBoard(players);
+       // syncTerritories(board.getTerritories(), players); removed due to refactor
+        UpdateNodeUI();
         gameOn = true;
+        run();
     }
 
     //Sorts Players by id and determines creator of board
@@ -608,20 +605,20 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
     //Only called by creator of board. Determines random owners of territories
     public void createBoard(ArrayList<Player> players) {
-        board.assignTerritories(players);
-        territories = board.getTerritories();
+        board.assignNodes(players);
+        nodes = board.getNodes();
     }
 
     public void update() {
-        if (System.currentTimeMillis() - lastReinforce > 5000) {
+/*        if (System.currentTimeMillis() - lastReinforce > 5000) {
             Log.d(TAG, "reifnorce time");
             lastReinforce = System.currentTimeMillis();
             reinforce = true;
         }
         if (reinforce) {
             reinforceAll();
-            updateTerritoryUi();
-        }
+            UpdateNodeUI();
+        }*/
     }
 
     /*
@@ -641,14 +638,14 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
                 break;
             case 2:
                 Territory.territoryBattle(findTerritory((int) buf[1]), findTerritory((int) buf[2]));
-                updateTerritoryUi();
+                UpdateNodeUI();
                 break;
         }
 //        Toast.makeText(GameActivity.this, "Message received: " + (int) buf[0] + "/" + (int) buf[1], Toast.LENGTH_SHORT).show();
     }
 
     public void syncGameData(byte[] buf, ArrayList<Player> players) {
-        ArrayList<String> indexedTerritories = board.getIndexedTerritories();
+/*        ArrayList<String> indexedTerritories = board.getIndexedTerritories();
         int t = 1;
         int p = 2;
         //TODO dont hardcode you noob
@@ -658,12 +655,12 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             players.get(buf[p]).newTerritory(newTerritory);
             t += 2;
             p += 2;
-        }
+        }*/
     }
 
     //converts territory array into byte array to transmit over GPS API
     public void syncTerritories(ArrayList<Territory> territories, ArrayList<Player> players) {
-        byte[] array = new byte[territories.size() * 2 + 1];
+       /* byte[] array = new byte[territories.size() * 2 + 1];
         //sets command of byte array to instruct message receiver
         array[0] = (byte) 0;
         ArrayList<String> indexedTerritories = board.getIndexedTerritories();
@@ -686,7 +683,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         }
         for (Participant p : mParticipants) {
             Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, array, mRoomId, p.getParticipantId());
-        }
+        }*/
     }
 
     /*
@@ -694,7 +691,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
      */
 
     // update Territory troops
-    public void reinforceAll() {
+/*    public void reinforceAll() {
         reinforce = false;
         for (Player p : players) {
             Log.d(TAG, "loopin");
@@ -703,34 +700,33 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
                 Log.d(TAG, Integer.toString(t.getTroops()));
             }
         }
-    }
+    }*/
 
     //Will color buttons and update text of all territories
-    public void updateTerritoryUi() {
-        if (territories.size() > 10) {
-            final int[] TestTROOPS = TROOPS;
-//            new Thread() {
-//                public void run() {
+    public void UpdateNodeUI() {
+        if (nodes.size() > 10) {
+            final int[] Nodes = NODES;
             try {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        for (Player p : players) {
-                            for (Territory t : p.getTerritories()) {
-                                TextView textView = (TextView) findViewById(TestTROOPS[t.getIndex()]);
-                                textView.setText(null);
-                                textView.append(Integer.toString(t.getTroops()));
-                                if (t.getPlayerOwned().getPlayerNumber().equals("player1")) {
+                        for (Node n : nodes) {
+                            TextView textView = (TextView) findViewById(n.getId());
+                            textView.setText(null);
+                            textView.append(Integer.toString(n.getValue()));
+                            if (n.getPlayerOwned() != null) {
+                                if (n.getPlayerOwned().getPlayerNumber().equals("player1")) {
                                     textView.setTextColor(Color.RED);
                                 }
 
-                                if (t.getPlayerOwned().getPlayerNumber().equals("player2")) {
+                                if (n.getPlayerOwned().getPlayerNumber().equals("player2")) {
                                     textView.setTextColor(Color.BLUE);
                                 }
-                                if (t.getPlayerOwned().getPlayerNumber().equals("player3")) {
+                                if (n.getPlayerOwned().getPlayerNumber().equals("player3")) {
                                     textView.setTextColor(Color.GREEN);
                                 }
                             }
+
                         }
                     }
                 });
@@ -745,21 +741,17 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    updateTerritoryUi();
+                    UpdateNodeUI();
                 }
             }, 2000);
         }
     }
 
-
-    final static int[] CLICKABLES = {
-            R.id.button_alaska, R.id.button_nwTerritory, R.id.button_greenland, R.id.button_alberta, R.id.button_ontario, R.id.button_quebec, R.id.button_westernUs, R.id.button_easternUs, R.id.button_centralAmerica, R.id.button_venezuela, R.id.button_brazil, R.id.button_peru, R.id.button_argentina, R.id.button_southAfrica, R.id.button_madagascar, R.id.button_congo, R.id.button_eastAfrica, R.id.button_egypt, R.id.button_northAfrica, R.id.button_westernEurope, R.id.button_southernEurope, R.id.button_northernEurope, R.id.button_greatBritain, R.id.button_ukraine, R.id.button_scandinavia, R.id.button_iceland, R.id.button_middleEast, R.id.button_afghanistan, R.id.button_ural, R.id.button_siberia, R.id.button_india, R.id.button_china, R.id.button_mongolia, R.id.button_irkutsk, R.id.button_yakutsk, R.id.button_kamchatka, R.id.button_japan, R.id.button_siam, R.id.button_indonesia, R.id.button_newGuinea, R.id.button_westernAustralia, R.id.button_easternAustralia
-    };
-    final static int[] TROOPS = {
-            R.id.troops_alaska, R.id.troops_nwTerritory, R.id.troops_greenland, R.id.troops_alberta, R.id.troops_ontario, R.id.troops_quebec, R.id.troops_westernUs, R.id.troops_easternUs, R.id.troops_centralAmerica, R.id.troops_venezuela, R.id.troops_brazil, R.id.troops_peru, R.id.troops_argentina, R.id.troops_southAfrica, R.id.troops_madagascar, R.id.troops_congo, R.id.troops_eastAfrica, R.id.troops_egypt, R.id.troops_northAfrica, R.id.troops_westernEurope, R.id.troops_southernEurope, R.id.troops_northernEurope, R.id.troops_greatBritain, R.id.troops_ukraine, R.id.troops_scandinavia, R.id.troops_iceland, R.id.troops_middleEast, R.id.troops_afghanistan, R.id.troops_ural, R.id.troops_siberia, R.id.troops_india, R.id.troops_china, R.id.troops_mongolia, R.id.troops_irkutsk, R.id.troops_yakutsk, R.id.troops_kamchatka, R.id.troops_japan, R.id.troops_siam, R.id.troops_indonesia, R.id.troops_newGuinea, R.id.troops_westernAustralia, R.id.troops_easternAustralia
+    final static int[] NODES = {
+            R.id.diamond1, R.id.diamond2,R.id.diamond3,R.id.diamond4,R.id.diamond5,R.id.diamond5,R.id.diamond6,R.id.diamond7,R.id.diamond8,R.id.diamond9,R.id.diamond10,R.id.diamond11,R.id.diamond12,R.id.diamond13,R.id.diamond14,R.id.diamond15,R.id.diamond16,R.id.diamond17,R.id.diamond18,R.id.diamond19,R.id.diamond21,R.id.octagon1,R.id.octagon2,R.id.octagon3,R.id.octagon4,
     };
 
-    // This array lists all the individual screens our game has.
+    // This array lists all the individual screens the game has.
     final static int[] SCREENS = {
             R.id.screen_game,
             R.id.screen_wait
@@ -803,13 +795,13 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     }
 
     public Territory findTerritory(int index) {
-        Territory territory;
+/*        Territory territory;
         for (Territory t : territories) {
             if (t.getIndex() == index) {
                 territory = t;
                 return territory;
             }
-        }
+        }*/
         return null;
     }
 
