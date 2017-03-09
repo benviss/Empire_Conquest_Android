@@ -14,9 +14,6 @@ import com.google.example.games.basegameutils.BaseGameUtils;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.vizo.empireconquest.R;
-import com.vizo.empireconquest.models.Board;
-
-import java.util.ArrayList;
 
 public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
@@ -77,7 +74,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 Intent intent = new Intent(MainActivity.this, GameActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.button_log_out:
+            case R.id.button_logout:
                 // user wants to sign out
                 // sign out.
                 Log.d(TAG, "Sign-out button clicked");
@@ -86,15 +83,15 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 mGoogleApiClient.disconnect();
                 switchToScreen(R.id.screen_sign_in);
                 break;
-            case R.id.button_test:
-                Board board = new Board();
-                ArrayList players = new ArrayList();
-//                Player player1 = new Player("Player 1", "test");
-//                Player player2 = new Player("Player 2", "test");
-//                players.add(player1);
-//                players.add(player2);
-//                board.assignTerritories(players);
-                break;
+//            case R.id.button_test:
+//                Board board = new Board();
+//                ArrayList players = new ArrayList();
+////                Player player1 = new Player("Player 1", "test");
+////                Player player2 = new Player("Player 2", "test");
+////                players.add(player1);
+////                players.add(player2);
+////                board.assignNodes(players);
+//                break;
         }
     }
 
@@ -185,12 +182,11 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
      * UI SECTION. Methods that implement the game's UI.
      */
     final static int[] CLICKABLES = {
-            R.id.button_start_game, R.id.button_sign_in, R.id.button_log_out, R.id.button_test
+            R.id.button_start_game, R.id.button_sign_in, R.id.button_logout
     };
 
     // This array lists all the individual screens our game has.
-    final static int[] SCREENS = {
-            R.id.screen_game, R.id.screen_main, R.id.screen_sign_in,
+    final static int[] SCREENS = { R.id.screen_main, R.id.screen_sign_in,
             R.id.screen_wait
     };
     int mCurScreen = -1;

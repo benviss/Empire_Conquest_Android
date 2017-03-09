@@ -1,45 +1,79 @@
 package com.vizo.empireconquest.models;
 
+import com.vizo.empireconquest.R;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 
 /**
  * Created by Guest on 12/19/16.
  */
 public class Board {
-    private ArrayList<Territory> territories = new ArrayList<>();
-//    private ArrayList<String> unmappedTerritories = new ArrayList<>(Arrays.asList("Alaska", "Northwest Territory", "Greenland", "Alberta", "Ontario", "Western United States", "Eastern United States", "Central America"));
-    private ArrayList<String> unmappedTerritories = new ArrayList<>(Arrays.asList("Alaska", "Northwest Territory", "Greenland", "Alberta", "Ontario","Quebec" ,"Western United States", "Eastern United States", "Central America", "Venezuela","Brazil", "Peru", "Argentina", "South Africa", "Madagascar", "Congo", "East Africa", "Egypt", "North Africa", "Western Europe","Southern Europe", "Northern Europe", "Great Britain", "Ukraine", "Scandinavia", "Iceland", "Middle East", "Afghanistan", "Ural","Siberia", "India", "China", "Mongolia", "Irkutsk", "Yakutsk", "Kamchatka", "Japan", "Siam", "Indonesia","New Guinea", "Western Australia", "Eastern Australia"));
-    private ArrayList<String> territoriesIndexed = new ArrayList<>(Arrays.asList("Alaska", "Northwest Territory", "Greenland", "Alberta", "Ontario","Quebec" ,"Western United States", "Eastern United States", "Central America", "Venezuela","Brazil", "Peru", "Argentina", "South Africa", "Madagascar", "Congo", "East Africa", "Egypt", "North Africa", "Western Europe","Southern Europe", "Northern Europe", "Great Britain", "Ukraine", "Scandinavia", "Iceland", "Middle East", "Afghanistan", "Ural","Siberia", "India", "China", "Mongolia", "Irkutsk", "Yakutsk", "Kamchatka", "Japan", "Siam", "Indonesia","New Guinea", "Western Australia", "Eastern Australia"));
+    private ArrayList<Node> nodes = new ArrayList<>();
+
+    private ArrayList<Integer> diamonds = new ArrayList<>(Arrays.asList(R.id.diamond1, R.id.diamond2,R.id.diamond3,R.id.diamond4,R.id.diamond5,R.id.diamond6,R.id.diamond7,R.id.diamond8,R.id.diamond9,R.id.diamond10,R.id.diamond11,R.id.diamond12,R.id.diamond13,R.id.diamond14,R.id.diamond15,R.id.diamond16,R.id.diamond17,R.id.diamond18,R.id.diamond19,R.id.diamond20, R.id.diamond21));
+    private ArrayList<Integer> octagons = new ArrayList<>(Arrays.asList(R.id.octagon1,R.id.octagon3,R.id.octagon4,R.id.octagon2));
 
 
-    public void assignTerritories(ArrayList<Player> players) {
-        //Increments through available players
-        int playerIndex = 0;
-        int length = unmappedTerritories.size();
-        Random randomGenerator = new Random();
-        for (int i = 0; i < length; i++) {
-
-            //Resets to 0 to stay within players Array bounds
-            if (playerIndex == players.size()) playerIndex = 0;
-            int randomInt = randomGenerator.nextInt(unmappedTerritories.size());
-
-            //assign player and increment playerIndex to complete player assignment randomization
-            int territoryIndex = territoriesIndexed.indexOf(unmappedTerritories.get(randomInt));
-            Territory newTerritory = new Territory(unmappedTerritories.get(randomInt), players.get(playerIndex), territoryIndex);
-            players.get(playerIndex).newTerritory(newTerritory);
-            playerIndex++;
-
-            territories.add(newTerritory);
-            unmappedTerritories.remove(randomInt);
+    public void assignNodes(ArrayList<Player> players) {
+        int index = 0;
+        for (int i = 0; i < players.size(); i++) {
+            Node newNode = new Node(octagons.get(i), "Octagon", 5, index);
+            newNode.setPlayerOwned(players.get(i));
+            newNode.setIncrement(3);
+            nodes.add(newNode);
+            index++;
+            octagons.remove(i);
+        }
+        for (int i = 0; i < octagons.size(); i++) {
+            Node newNode = new Node(octagons.get(i), "Octagon", 5, index);
+            newNode.setIncrement(3);
+            nodes.add(newNode);
+            index++;
+        }
+        for (int i = 0; i < diamonds.size(); i++) {
+            Node newNode = new Node(diamonds.get(i), "Diamond", 1, index);
+            newNode.setIncrement(1);
+            nodes.add(newNode);
+            index++;
         }
     }
 
-    public ArrayList<Territory> getTerritories() {
-        return territories;
+    public void nodeAttack(Node sourceNode, Node targetNode) {
+        if (sourceNode.getPlayerOwned() == targetNode.getPlayerOwned()) {
+            targetNode.setValue(targetNode.getValue() + sourceNode.getValue());
+            sourceNode.setValue(1);
+        } else {
+            int targetInt = targetNode.getValue();
+            int sourceInt = sourceNode.getValue();
+            targetNode.setValue(targetInt - sourceInt);
+            if (targetNode.getValue() <= 0) {
+                targetNode.setPlayerOwned(sourceNode.getPlayerOwned());
+                targetNode.setValue(1 + (sourceInt - targetInt));
+            }
+            sourceNode.setValue(1);
+        }
     }
-    public ArrayList<String> getIndexedTerritories() {
-        return territoriesIndexed;
+
+    public Node findByID(int id) {
+        for (Node n : nodes) {
+            if (n.getId() == id) {
+                return n;
+            }
+        }
+        return null;
     }
+
+    public Node findByIndex(int index) {
+        for (Node n : nodes) {
+            if (n.getIndex() == index) {
+                return n;
+            }
+        }
+        return null;
+    }
+    public ArrayList<Node> getNodes() {
+        return nodes;
+    }
+
 }

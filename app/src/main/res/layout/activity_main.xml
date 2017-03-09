@@ -28,9 +28,14 @@
             android:layout_height="wrap_content"
             android:text="Conquer"
             android:id="@+id/button_start_game"
-            android:layout_centerInParent="true"
             android:layout_marginLeft="500dp"
-            android:layout_marginTop="500dp" />
+            android:layout_marginTop="500dp"
+            android:layout_centerInParent="true" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Log Out"
+            android:id="@+id/button_logout" />
     </RelativeLayout>
 
     <LinearLayout android:id="@+id/screen_wait"
