@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -42,7 +43,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class GameActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener, RealTimeMessageReceivedListener,
@@ -103,10 +103,10 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
     //Game State
     boolean gameOn = false;
-    boolean attack = false;
-    boolean reinforce = false;
-    long lastReinforce = System.currentTimeMillis();
-    boolean unSynced = false;
+
+    Timer timer;
+    public final static int ONE_SECOND = 1000;
+
 
 
 
@@ -134,7 +134,6 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
             findViewById(id).setOnClickListener(this);
         }
         //Database
-
 
     }
 
@@ -513,67 +512,10 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     private final static int MAX_FRAME_SKIPS = 5;
     // the frame period
     private final static int FRAME_PERIOD = 1000 / MAX_FPS;
-
-
-//    @Override
-//    public void run() {
-//        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-//        Canvas canvas;
-//        Log.d(TAG, "Starting game loop");
-//        long beginTime;     // the time when the cycle begun
-//
-//        long timeDiff;      // the time it took for the cycle to execute
-//
-//        int sleepTime;      // ms to sleep (<0 if we're behind)
-//
-//        int framesSkipped;  // number of frames being skipped
-//        sleepTime = 0;
-//        while (gameOn) {
-//            try {
-//                beginTime = System.currentTimeMillis();
-//                framesSkipped = 0;  // resetting the frames skipped
-//                // update game state
-//                update();
-//                // render state to the screen
-//                // draws the canvas on the panel
-//                UpdateNodeUI();
-//                Log.d(TAG, "here");
-//                // calculate how long did the cycle take
-//                timeDiff = System.currentTimeMillis() - beginTime;
-//                // calculate sleep time
-//                sleepTime = (int)(FRAME_PERIOD - timeDiff);
-//                if (sleepTime > 0) {
-//                    // if sleepTime > 0 we're OK
-//                    try {
-//                        // send the thread to sleep for a short period
-//                        // very useful for battery saving
-//                        Thread.sleep(sleepTime);
-//                    } catch (InterruptedException e) {}
-//                while (sleepTime < 0 && framesSkipped < MAX_FRAME_SKIPS) {
-//                    // we need to catch up
-//                    // update without rendering
-//                    update();
-//                    // add frame period to check if in next frame
-//                    sleepTime += FRAME_PERIOD;
-//                    framesSkipped++;
-//                }
-//                }
-//            } finally {
-//                // in case of an exception the surface is not left in
-//                // an inconsistent state
-//
-//            }   // end finally
-//        }
-//    }
+    
     public void run()
     {
-//        Looping until the boolean is false
-        while (gameOn)
-        {
-            if (mCurScreen != R.id.screen_game) switchToScreen(R.id.screen_game);
-//            processInput();
-            update();
-        }
+
     }
 
     // Reset game variables in preparation for a new game.
@@ -587,10 +529,25 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         board = new Board();
         players = sortPlayers(players);
         createBoard(players);
-       // syncTerritories(board.getTerritories(), players); removed due to refactor
+        // syncTerritories(board.getTerritories(), players); removed due to refactor
         UpdateNodeUI();
         gameOn = true;
-        run();
+
+        new Thread(new Runnable() {
+            public void run() {
+                if (Looper.myLooper() == null) {
+                    Looper.prepare();
+                }
+                long time = System.currentTimeMillis();
+                while (gameOn) {
+                    if ((System.currentTimeMillis() - time) > 5000) {
+                        Log.d(TAG, "Hmmm");
+                        time = System.currentTimeMillis();
+                    }
+
+                }
+            }
+        }).start();
     }
 
     //Sorts Players by id and determines creator of board
@@ -603,11 +560,13 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         return players;
     }
 
-    //Only called by creator of board. Determines random owners of territories
+
     public void createBoard(ArrayList<Player> players) {
         board.assignNodes(players);
         nodes = board.getNodes();
     }
+
+
 
     public void update() {
 /*        if (System.currentTimeMillis() - lastReinforce > 5000) {
@@ -635,10 +594,6 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         switch (buf[0]) {
             case 0:
                 syncGameData(buf, players);
-                break;
-            case 2:
-                Territory.territoryBattle(findTerritory((int) buf[1]), findTerritory((int) buf[2]));
-                UpdateNodeUI();
                 break;
         }
 //        Toast.makeText(GameActivity.this, "Message received: " + (int) buf[0] + "/" + (int) buf[1], Toast.LENGTH_SHORT).show();
@@ -704,46 +659,30 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
     //Will color buttons and update text of all territories
     public void UpdateNodeUI() {
-        if (nodes.size() > 10) {
-            final int[] Nodes = NODES;
-            try {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (Node n : nodes) {
-                            TextView textView = (TextView) findViewById(n.getId());
-                            textView.setText(null);
-                            textView.append(Integer.toString(n.getValue()));
-                            if (n.getPlayerOwned() != null) {
-                                if (n.getPlayerOwned().getPlayerNumber().equals("player1")) {
-                                    textView.setTextColor(Color.RED);
-                                }
-
-                                if (n.getPlayerOwned().getPlayerNumber().equals("player2")) {
-                                    textView.setTextColor(Color.BLUE);
-                                }
-                                if (n.getPlayerOwned().getPlayerNumber().equals("player3")) {
-                                    textView.setTextColor(Color.GREEN);
-                                }
-                            }
-
-                        }
-                    }
-                });
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        try {
+            if (nodes.size() < 1) {
+                throw new InterruptedException();
             }
-//                }
-//            }.start();
-//
-        } else {
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    UpdateNodeUI();
+            for (Node n : nodes) {
+                TextView textView = (TextView) findViewById(n.getId());
+                textView.setText(null);
+                textView.append(Integer.toString(n.getValue()));
+                if (n.getPlayerOwned() != null) {
+                    if (n.getPlayerOwned().getPlayerNumber().equals("player1")) {
+                        textView.setTextColor(Color.RED);
+                    }
+
+                    if (n.getPlayerOwned().getPlayerNumber().equals("player2")) {
+                        textView.setTextColor(Color.BLUE);
+                    }
+                    if (n.getPlayerOwned().getPlayerNumber().equals("player3")) {
+                        textView.setTextColor(Color.GREEN);
+                    }
                 }
-            }, 2000);
+
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -794,16 +733,6 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         }
     }
 
-    public Territory findTerritory(int index) {
-/*        Territory territory;
-        for (Territory t : territories) {
-            if (t.getIndex() == index) {
-                territory = t;
-                return territory;
-            }
-        }*/
-        return null;
-    }
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
