@@ -89,17 +89,8 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     ArrayList<Player> players = new ArrayList<>();
     Player me;
 
-    //Keeping track of player inputs, determining next round or not
-
-
     //Node Array
     ArrayList<Node> nodes = new ArrayList<>();
-
-
-    //For Battles
-    boolean territorySelected = false;
-    Territory firstTerritory;
-    Territory secondTerritory;
 
     //Game State
     boolean gameOn = false;
@@ -107,7 +98,9 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     Timer timer;
     public final static int ONE_SECOND = 1000;
 
-
+    //.Node selection
+    Node sourceNode;
+    Node targetNode;
 
 
     //myRef.setValue("Hello, World!");
@@ -139,41 +132,26 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
     @Override
     public void onClick(View v) {
-        Toast.makeText(this, "Hi", Toast.LENGTH_SHORT).show();
-/*        update();
-        if (!territorySelected) {
-            territorySelected = true;
-            for (int i = 0; i < CLICKABLES.length; i++) {
-                if (v.getId() == CLICKABLES[i]) {
-                    firstTerritory = findTerritory(i);
-                }
+        if ((sourceNode == null)&&(targetNode == null)) {
+            if (board.findByID(v.getId()).getPlayerOwned() == null) {
+                return;
             }
-        } else {
-            for (int i = 0; i < CLICKABLES.length; i++) {
-                if (v.getId() == CLICKABLES[i]) {
-                    secondTerritory = findTerritory(i);
-                }
+            if (board.findByID(v.getId()).getPlayerOwned().getPlayerId().equals(mMyId)) {
+                sourceNode = board.findByID(v.getId());
             }
+        } else if ((sourceNode != null)&&(targetNode == null)) {
+            targetNode = board.findByID(v.getId());
+            if (sourceNode == targetNode) {
+                sourceNode = null;
+                targetNode = null;
+                return;
+            }
+            board.nodeAttack(sourceNode, targetNode);
+            updateNodeUI();
+            sendCompletedAttack(sourceNode, targetNode);
+            sourceNode = null;
+            targetNode = null;
         }
-        if ((firstTerritory != null) && (secondTerritory != null)) {
-            territorySelected = false;
-            Territory.territoryBattle(firstTerritory, secondTerritory);
-            for (Participant p : mParticipants) {
-                if (p.getParticipantId() != mMyId) {
-                    byte[] bytes = new byte[3];
-                    bytes[0] = 2;
-                    bytes[1] = (byte) firstTerritory.getIndex();
-                    bytes[2] = (byte) secondTerritory.getIndex();
-
-                    Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, bytes, mRoomId, p.getParticipantId());
-                }
-            }
-            firstTerritory = null;
-            secondTerritory = null;
-            UpdateNodeUI();
-
-
-        }*/
     }
 
     void startQuickGame() {
@@ -530,7 +508,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         players = sortPlayers(players);
         createBoard(players);
         // syncTerritories(board.getTerritories(), players); removed due to refactor
-        UpdateNodeUI();
+        updateNodeUI();
         gameOn = true;
 
         new Thread(new Runnable() {
@@ -541,7 +519,8 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
                 long time = System.currentTimeMillis();
                 while (gameOn) {
                     if ((System.currentTimeMillis() - time) > 5000) {
-                        Log.d(TAG, "Hmmm");
+                        update();
+                        updateNodeUI();
                         time = System.currentTimeMillis();
                     }
 
@@ -569,15 +548,15 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
 
 
     public void update() {
-/*        if (System.currentTimeMillis() - lastReinforce > 5000) {
-            Log.d(TAG, "reifnorce time");
-            lastReinforce = System.currentTimeMillis();
-            reinforce = true;
+        for (Node n : nodes) {
+            if (n.getType() == null) {
+                Log.d(TAG, "node is null in update");
+                return;
+            }
+            int currentValue = n.getValue();
+            int newValue = currentValue + n.getIncrement();
+            n.setValue(newValue);
         }
-        if (reinforce) {
-            reinforceAll();
-            UpdateNodeUI();
-        }*/
     }
 
     /*
@@ -586,32 +565,35 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
      */
 
     // Called when we receive a real-time message from the network.
-    // Message of 0 means board generation command received
+    // Message of 0 means node attack command received
     @Override
     public void onRealTimeMessageReceived(RealTimeMessage rtm) {
         byte[] buf = rtm.getMessageData();
         String sender = rtm.getSenderParticipantId();
         switch (buf[0]) {
             case 0:
-                syncGameData(buf, players);
+                Node sourceNode = board.findByIndex((int) buf[1]);
+                Node targetNode = board.findByIndex((int) buf[2]);
+                Log.d(TAG, Integer.toString(sourceNode.getId()));
+                Log.d(TAG, Integer.toString(targetNode.getId()));
+                board.nodeAttack(sourceNode, targetNode);
+                updateNodeUI();
                 break;
         }
 //        Toast.makeText(GameActivity.this, "Message received: " + (int) buf[0] + "/" + (int) buf[1], Toast.LENGTH_SHORT).show();
     }
 
-    public void syncGameData(byte[] buf, ArrayList<Player> players) {
-/*        ArrayList<String> indexedTerritories = board.getIndexedTerritories();
-        int t = 1;
-        int p = 2;
-        //TODO dont hardcode you noob
-        for (int i = 0; i < 42; i++) {
-            Territory newTerritory = new Territory(indexedTerritories.get(buf[t]), players.get(buf[p]), buf[t]);
-            territories.add(newTerritory);
-            players.get(buf[p]).newTerritory(newTerritory);
-            t += 2;
-            p += 2;
-        }*/
+    public void sendCompletedAttack(Node sourceNode, Node targetNode) {
+        byte[] array = new byte[3];
+        array[0] = (byte) 0;
+        array[1] = (byte) sourceNode.getIndex();
+        array[2] = (byte) targetNode.getIndex();
+        Toast.makeText(this, sourceNode.getIndex() + " || " + targetNode.getIndex(), Toast.LENGTH_LONG).show();
+        for (Participant p : mParticipants) {
+            Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, array, mRoomId, p.getParticipantId());
+        }
     }
+
 
     //converts territory array into byte array to transmit over GPS API
     public void syncTerritories(ArrayList<Territory> territories, ArrayList<Player> players) {
@@ -658,36 +640,41 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     }*/
 
     //Will color buttons and update text of all territories
-    public void UpdateNodeUI() {
+    public void updateNodeUI() {
         try {
             if (nodes.size() < 1) {
                 throw new InterruptedException();
             }
-            for (Node n : nodes) {
-                TextView textView = (TextView) findViewById(n.getId());
-                textView.setText(null);
-                textView.append(Integer.toString(n.getValue()));
-                if (n.getPlayerOwned() != null) {
-                    if (n.getPlayerOwned().getPlayerNumber().equals("player1")) {
-                        textView.setTextColor(Color.RED);
-                    }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (Node n : nodes) {
+                        TextView textView = (TextView) findViewById(n.getId());
+                        textView.setText(null);
+                        textView.append(Integer.toString(n.getValue()));
+                        if (n.getPlayerOwned() != null) {
+                            if (n.getPlayerOwned().getPlayerNumber().equals("player1")) {
+                                textView.setTextColor(Color.RED);
+                            }
 
-                    if (n.getPlayerOwned().getPlayerNumber().equals("player2")) {
-                        textView.setTextColor(Color.BLUE);
-                    }
-                    if (n.getPlayerOwned().getPlayerNumber().equals("player3")) {
-                        textView.setTextColor(Color.GREEN);
+                            if (n.getPlayerOwned().getPlayerNumber().equals("player2")) {
+                                textView.setTextColor(Color.BLUE);
+                            }
+                            if (n.getPlayerOwned().getPlayerNumber().equals("player3")) {
+                                textView.setTextColor(Color.GREEN);
+                            }
+                        }
+
                     }
                 }
-
-            }
+            });
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     final static int[] NODES = {
-            R.id.diamond1, R.id.diamond2,R.id.diamond3,R.id.diamond4,R.id.diamond5,R.id.diamond5,R.id.diamond6,R.id.diamond7,R.id.diamond8,R.id.diamond9,R.id.diamond10,R.id.diamond11,R.id.diamond12,R.id.diamond13,R.id.diamond14,R.id.diamond15,R.id.diamond16,R.id.diamond17,R.id.diamond18,R.id.diamond19,R.id.diamond21,R.id.octagon1,R.id.octagon2,R.id.octagon3,R.id.octagon4,
+            R.id.diamond1, R.id.diamond2,R.id.diamond3,R.id.diamond4,R.id.diamond5,R.id.diamond5,R.id.diamond6,R.id.diamond7,R.id.diamond8,R.id.diamond9,R.id.diamond10,R.id.diamond11,R.id.diamond12,R.id.diamond13,R.id.diamond14,R.id.diamond15,R.id.diamond16,R.id.diamond17,R.id.diamond18,R.id.diamond19,R.id.diamond20,R.id.diamond21,R.id.octagon1,R.id.octagon2,R.id.octagon3,R.id.octagon4,
     };
 
     // This array lists all the individual screens the game has.

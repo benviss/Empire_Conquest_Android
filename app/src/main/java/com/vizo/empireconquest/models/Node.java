@@ -6,15 +6,27 @@ package com.vizo.empireconquest.models;
 
 public class Node {
     private int id;
+    private int index;
     private String type;
     private int value;
     private Player playerOwned;
 
+    public int getIncrement() {
+        return increment;
+    }
 
-    public Node(int id, String type, int value) {
+    public void setIncrement(int increment) {
+        this.increment = increment;
+    }
+
+    private int increment;
+
+
+    public Node(int id, String type, int value, int index) {
         this.id = id;
         this.type = type;
         this.value = value;
+        this.index = index;
     }
 
 
@@ -44,6 +56,10 @@ public class Node {
 
     public Player getPlayerOwned() {
         return playerOwned;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     public void setPlayerOwned(Player playerOwned) {
