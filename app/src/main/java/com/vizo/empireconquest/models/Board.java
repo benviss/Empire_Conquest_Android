@@ -39,17 +39,29 @@ public class Board {
         }
     }
 
+    public boolean canNodeAttack(Node sourceNode, Node targetNode) {
+        int[] sourceCombos = nodeCombos[sourceNode.getIndex()];
+        for (int i : sourceCombos) {
+            if (i - 1 == targetNode.getIndex()) {
+                return true;
+            }
+        }
+        return false;
+    }
     public void nodeAttack(Node sourceNode, Node targetNode) {
         if (sourceNode.getPlayerOwned() == targetNode.getPlayerOwned()) {
-            targetNode.setValue(targetNode.getValue() + sourceNode.getValue());
+            targetNode.setValue(targetNode.getValue() + sourceNode.getValue() - 1);
             sourceNode.setValue(1);
         } else {
             int targetInt = targetNode.getValue();
-            int sourceInt = sourceNode.getValue();
+            int sourceInt = sourceNode.getValue() - 1;
+            if (sourceInt == targetInt) {
+                return;
+            }
             targetNode.setValue(targetInt - sourceInt);
             if (targetNode.getValue() <= 0) {
                 targetNode.setPlayerOwned(sourceNode.getPlayerOwned());
-                targetNode.setValue(1 + (sourceInt - targetInt));
+                targetNode.setValue(sourceInt - targetInt);
             }
             sourceNode.setValue(1);
         }
@@ -75,5 +87,7 @@ public class Board {
     public ArrayList<Node> getNodes() {
         return nodes;
     }
+
+    private int[][] nodeCombos = {{5},{25},{23},{7},{8,6,9,1},{5,8,9,7,10},{6,9,10,4},{5,6,9,12,11},{5,8,11,12,13,10,7,6},{7,6,9,12,13},{8,9,12,15,14},{8,9,10,11,13,14,15,16},{9,10,12,15,16},{11,12,15,17,18},{11,12,13,14,16,17,18,19},{12,13,15,18,19},{14,15,18,20,21},{14,15,16,17,19,20,21,22},{15,16,18,21,22},{17,18,21,23,24},{17,18,19,20,22,23,24,25},{18,19,21,24,25},{20,21,24,3},{20,21,22,23,25},{21,22,24,2}};
 
 }

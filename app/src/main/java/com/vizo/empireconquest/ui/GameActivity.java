@@ -11,7 +11,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -146,9 +145,12 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
                 targetNode = null;
                 return;
             }
-            board.nodeAttack(sourceNode, targetNode);
-            updateNodeUI();
-            sendCompletedAttack(sourceNode, targetNode);
+            Log.d(TAG, sourceNode.getIndex() + " || " + targetNode.getIndex());
+            if (board.canNodeAttack(sourceNode, targetNode)) {
+                board.nodeAttack(sourceNode, targetNode);
+                updateNodeUI();
+                sendCompletedAttack(sourceNode, targetNode);
+            }
             sourceNode = null;
             targetNode = null;
         }
@@ -588,7 +590,6 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         array[0] = (byte) 0;
         array[1] = (byte) sourceNode.getIndex();
         array[2] = (byte) targetNode.getIndex();
-        Toast.makeText(this, sourceNode.getIndex() + " || " + targetNode.getIndex(), Toast.LENGTH_LONG).show();
         for (Participant p : mParticipants) {
             Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, array, mRoomId, p.getParticipantId());
         }
