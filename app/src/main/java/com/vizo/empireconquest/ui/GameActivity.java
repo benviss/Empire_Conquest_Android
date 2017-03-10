@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -34,7 +35,6 @@ import com.vizo.empireconquest.R;
 import com.vizo.empireconquest.models.Board;
 import com.vizo.empireconquest.models.Node;
 import com.vizo.empireconquest.models.Player;
-import com.vizo.empireconquest.models.Territory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -150,10 +150,12 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
                 board.nodeAttack(sourceNode, targetNode);
                 updateNodeUI();
                 sendCompletedAttack(sourceNode, targetNode);
+                checkForWin();
             }
             sourceNode = null;
             targetNode = null;
         }
+        updateNodeUI();
     }
 
     void startQuickGame() {
@@ -227,9 +229,9 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
         stopKeepingScreenOn();
 
         if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()) {
-//            switchToScreen(R.id.screen_sign_in);
+            switchToMainScreen();
         } else {
-            switchToScreen(R.id.screen_wait);
+            switchToMainScreen();
         }
         super.onStop();// ATTENTION: This was auto-generated to implement the App Indexing API.
 // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -253,10 +255,11 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     void leaveRoom() {
         Log.d(TAG, "Leaving room.");
         stopKeepingScreenOn();
+        resetGameVars();
         if (mRoomId != null) {
             Games.RealTimeMultiplayer.leave(mGoogleApiClient, this, mRoomId);
             mRoomId = null;
-            switchToScreen(R.id.screen_wait);
+            switchToMainScreen();
         } else {
 //            switchToMainScreen();
         }
@@ -486,23 +489,22 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
      * GAME LOGIC SECTION. Methods that implement the game's rules.
      */
 
-    // desired fps
-    private final static int MAX_FPS = 50;
-    // maximum number of frames to be skipped
-    private final static int MAX_FRAME_SKIPS = 5;
-    // the frame period
-    private final static int FRAME_PERIOD = 1000 / MAX_FPS;
-    
-    public void run()
-    {
-
-    }
-
     // Reset game variables in preparation for a new game.
     void resetGameVars() {
-        // Deletes room and stuff
     }
 
+    public void checkForWin() {
+        for (Player p : players) {
+            if (board.playerDead(p)) {
+                if (p.getPlayerId() == mMyId) {
+                    Toast.makeText(this, "You Lose, Womp Womp", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "You Win! Hooray!", Toast.LENGTH_SHORT).show();
+                }
+                leaveRoom();
+            }
+        }
+    }
     // determines creator of board, initializes board sync and starts main game loop
     void startGame() {
         switchToScreen(R.id.screen_game);
@@ -580,6 +582,7 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
                 Log.d(TAG, Integer.toString(targetNode.getId()));
                 board.nodeAttack(sourceNode, targetNode);
                 updateNodeUI();
+                checkForWin();
                 break;
         }
 //        Toast.makeText(GameActivity.this, "Message received: " + (int) buf[0] + "/" + (int) buf[1], Toast.LENGTH_SHORT).show();
@@ -596,49 +599,9 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
     }
 
 
-    //converts territory array into byte array to transmit over GPS API
-    public void syncTerritories(ArrayList<Territory> territories, ArrayList<Player> players) {
-       /* byte[] array = new byte[territories.size() * 2 + 1];
-        //sets command of byte array to instruct message receiver
-        array[0] = (byte) 0;
-        ArrayList<String> indexedTerritories = board.getIndexedTerritories();
-        //sets index to assign territory and player
-        int tI = 1;
-        int pI = 2;
-        for (int i = 0; i < territories.size(); i++) {
-            //associates territory object with its territory name in indexedTerritories
-            int territory = indexedTerritories.indexOf(territories.get(i).getName());
-
-            //associates player with index of player in shared players array
-            int player = players.indexOf(territories.get(i).getPlayerOwned());
-
-            //saves territory index and player index to byte[]
-            array[tI] = (byte) territory;
-            array[pI] = (byte) player;
-
-            tI += 2;
-            pI += 2;
-        }
-        for (Participant p : mParticipants) {
-            Games.RealTimeMultiplayer.sendReliableMessage(mGoogleApiClient, null, array, mRoomId, p.getParticipantId());
-        }*/
-    }
-
     /*
      * UI SECTION. Methods that implement the game's UI.
      */
-
-    // update Territory troops
-/*    public void reinforceAll() {
-        reinforce = false;
-        for (Player p : players) {
-            Log.d(TAG, "loopin");
-            for (Territory t : p.getTerritories()) {
-                t.addReinforcements();
-                Log.d(TAG, Integer.toString(t.getTroops()));
-            }
-        }
-    }*/
 
     //Will color buttons and update text of all territories
     public void updateNodeUI() {
@@ -663,6 +626,9 @@ public class GameActivity extends Activity implements GoogleApiClient.Connection
                             }
                             if (n.getPlayerOwned().getPlayerNumber().equals("player3")) {
                                 textView.setTextColor(Color.GREEN);
+                            }
+                            if (n == sourceNode) {
+                                textView.setTextColor(Color.YELLOW);
                             }
                         }
 
